@@ -2,7 +2,7 @@ streamlit
 moviepy==1.0.3
 decorator==4.4.2
 openai-whisper
-anthropic
+google-generativeai
 opencv-python-headless
 Pillow
 numpy
