@@ -405,6 +405,5 @@ with tab4:
                 with VideoFileClip(v_out + "_tmp.mp4") as proc_vid:
                     proc_vid.set_audio(orig_vid.audio).write_videofile(v_out, codec="libx264", audio_codec="aac", logger=None)
             
-            st.success("✅ VIDEO ENHANCED & GRADED!")
-            st.video(v_out)
-            with open(v_out, "rb") as file: st.download_button("📥 DOWNLOAD ENHANCED VIDEO", file, "wdpro_enhanced
+                        with open(v_out, "rb") as file: st.download_button("📥 DOWNLOAD ENHANCED VIDEO", file, "wdpro_enhanced.mp4")
+                            
