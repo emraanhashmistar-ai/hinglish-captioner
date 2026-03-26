@@ -12,62 +12,47 @@ import google.generativeai as genai
 from gtts import gTTS
 
 # ==========================================
-# 1. CINEMATIC & PROFESSIONAL UI
+# 1. PREMIUM OFFICIAL UI & BRANDING
 # ==========================================
-st.set_page_config(page_title="WD PRO OFFICIAL", page_icon="🎬", layout="wide")
+st.set_page_config(page_title="WD PRO FF - SUPREME ENGINE", page_icon="🎬", layout="wide")
 
 st.markdown("""
     <style>
-    /* Sleek Dark Cinematic Theme */
-    .main { background-color: #0d0d0d; color: #f2f2f2; font-family: 'Helvetica Neue', sans-serif; }
+    .main { background: #050608; color: #f0f0f0; font-family: 'Segoe UI', sans-serif; }
     
-    /* WD PRO Premium Header */
-    .wd-brand-title {
-        text-align: center; font-size: 48px; font-weight: 900; letter-spacing: 4px;
-        color: #ffffff; text-transform: uppercase; margin-bottom: 10px;
-        text-shadow: 0px 4px 20px rgba(220, 20, 60, 0.6);
-        animation: smoothFade 1.5s ease-in-out;
+    .welcome-header {
+        text-align: center; font-size: 52px; font-weight: 900;
+        background: linear-gradient(90deg, #ff0000, #ff7b00, #ff0000);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        animation: dropIn 1.5s ease-out, glowPulse 2s infinite alternate;
+        margin-bottom: 25px; text-transform: uppercase; letter-spacing: 2px;
     }
-    .wd-subtitle {
-        text-align: center; font-size: 16px; color: #888888; letter-spacing: 2px;
-        margin-bottom: 40px; text-transform: uppercase;
-    }
+    @keyframes dropIn { from { opacity:0; transform: translateY(-30px); } to { opacity:1; transform: translateY(0); } }
+    @keyframes glowPulse { from { filter: drop-shadow(0 0 10px #ff0000); } to { filter: drop-shadow(0 0 30px #ff0000); } }
     
-    @keyframes smoothFade { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* Elegant Tabs */
-    .stTabs [data-baseweb="tab-list"] { 
-        background-color: #141414; padding: 5px; border-radius: 8px; 
-        border: 1px solid #222; justify-content: center;
-    }
+    .stTabs [data-baseweb="tab-list"] { background: #0f1115; padding: 12px; border-radius: 15px; gap: 15px; border: 1px solid rgba(255,0,0,0.2); }
     .stTabs [data-baseweb="tab"] {
-        background: transparent; color: #666; font-weight: 600; font-size: 15px;
-        border: none; transition: all 0.4s ease; padding: 10px 30px; border-radius: 5px;
+        height: 50px; background: transparent; border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 10px; color: #888; font-weight: 700; font-size: 16px; transition: 0.4s; padding: 0 25px;
     }
     .stTabs [aria-selected="true"] { 
-        background-color: #dc143c !important; color: #ffffff !important; 
-        box-shadow: 0 4px 15px rgba(220, 20, 60, 0.4);
+        background: linear-gradient(135deg, #ff0000, #aa0000) !important; 
+        color: white !important; border: none !important; 
+        box-shadow: 0 0 20px rgba(255,0,0,0.6); transform: scale(1.05);
     }
     
-    /* Smooth Professional Buttons */
     .stButton>button {
-        background-color: #1a1a1a; color: #ffffff; border: 1px solid #dc143c;
-        border-radius: 6px; height: 3.2rem; font-size: 15px; font-weight: bold; letter-spacing: 1px;
-        transition: all 0.3s ease; width: 100%;
+        background: linear-gradient(135deg, #ff0000, #880000); color: white; border: none;
+        border-radius: 12px; height: 3.8rem; width: 100%; font-size: 18px; font-weight: 800; letter-spacing: 1px;
+        transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 5px 15px rgba(0,0,0,0.6);
     }
-    .stButton>button:hover { 
-        background-color: #dc143c; border-color: #dc143c;
-        transform: translateY(-2px); box-shadow: 0 6px 20px rgba(220, 20, 60, 0.5);
-    }
-    .stButton>button:active { transform: scale(0.98); }
-
-    /* Sidebar Styling */
-    .css-1d391kg { background-color: #0a0a0a; border-right: 1px solid #222; }
+    .stButton>button:hover { transform: translateY(-4px); box-shadow: 0 10px 25px rgba(255,0,0,0.7); background: #ff1a1a; }
+    .stButton>button:active { transform: scale(0.97); }
     </style>
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. CORE ENGINES
+# 2. CORE ENGINES (Shared Functions)
 # ==========================================
 @st.cache_resource
 def load_whisper(): 
@@ -75,19 +60,22 @@ def load_whisper():
 
 def get_pro_font(font_name, size):
     paths = {
-        "Cinematic Bold": "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
-        "Modern Clean": "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+        "Official Bold": "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+        "Modern Sans": "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
         "Classic Serif": "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf"
     }
-    p = paths.get(font_name, paths["Cinematic Bold"])
+    p = paths.get(font_name, paths["Official Bold"])
     return ImageFont.truetype(p, size) if os.path.exists(p) else ImageFont.load_default()
 
 def wrap_text_logic(text, font, max_width):
-    words = text.split(); lines = []; current_line = []
+    words = text.split()
+    lines = []
+    current_line = []
     for word in words:
         test_line = " ".join(current_line + [word])
         w = font.getbbox(test_line)[2]
-        if w <= max_width: current_line.append(word)
+        if w <= max_width: 
+            current_line.append(word)
         else:
             if current_line: lines.append(" ".join(current_line))
             current_line = [word]
@@ -95,63 +83,72 @@ def wrap_text_logic(text, font, max_width):
     return lines
 
 # ==========================================
-# 3. SIDEBAR (WD PRO BRANDING)
+# 3. SIDEBAR (WD PRO OFFICIAL BRANDING)
 # ==========================================
 api_key = st.secrets.get("GEMINI_API_KEY", "AIzaSyC4axyeGWQfDHoDmK7D8WdFiQReUllm3Co")
 with st.sidebar:
-    st.markdown("<h2 style='text-align:center; color:#ffffff; letter-spacing: 2px;'>WD PRO</h2>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align:center; color:#dc143c; font-weight:bold;'>CREATOR STUDIO</p>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align:center; color:#ff0000; text-shadow: 0 0 10px red;'>WD PRO FF</h2>", unsafe_allow_html=True)
+    st.image("https://img.icons8.com/color/144/free-fire.png")
+    st.markdown("### 🌐 OFFICIAL LINKS")
+    st.markdown("""
+    <div style="background:#111; padding:15px; border-radius:10px; border:1px solid red; text-align:center; margin-bottom:10px;">
+        <a href="https://youtube.com/@WDPROFF" style="color:white; text-decoration:none; font-weight:bold; font-size:16px;">📺 YouTube: WD PRO FF</a>
+    </div>
+    <div style="background:#111; padding:15px; border-radius:10px; border:1px solid red; text-align:center; margin-bottom:15px;">
+        <a href="https://instagram.com/WDPROFF" style="color:white; text-decoration:none; font-weight:bold; font-size:16px;">📸 Instagram: @WDPROFF</a>
+    </div>
+    """, unsafe_allow_html=True)
     st.divider()
-    st.markdown("### OFFICIAL LINKS")
-    st.markdown("[📺 WD PRO FF (YouTube)](https://youtube.com/@WDPROFF)")
-    st.markdown("[📸 @WDPROFF (Instagram)](https://instagram.com/WDPROFF)")
-    st.divider()
-    user_key = st.text_input("API Key (System)", value=api_key, type="password")
+    user_key = st.text_input("🔑 System API Key", value=api_key, type="password")
 
-# Header
-st.markdown('<div class="wd-brand-title">WD PRO STUDIO</div>', unsafe_allow_html=True)
-st.markdown('<div class="wd-subtitle">Professional Video Enhancement Suite</div>', unsafe_allow_html=True)
+if 'app_started' not in st.session_state:
+    st.balloons()
+    st.markdown('<h1 class="welcome-header">WD PRO FF SUPREME 🔥</h1>', unsafe_allow_html=True)
+    st.session_state.app_started = True
 
 # ==========================================
-# 4. TABBED WORKSPACE
+# 4. TABBED INTERFACE
 # ==========================================
-tab1, tab2, tab3, tab4 = st.tabs(["🎬 Auto Captions", "🎙️ AI Dubbing", "🚫 Smart Blur", "✨ Cinematic Color"])
+tab1, tab2, tab3, tab4 = st.tabs(["🎬 Ultra Captioner", "🎙️ AI Dubbing", "🚫 Watermark Pro", "✨ Video Pro"])
 
 # ==========================================
-# TAB 1: CAPTIONER (PROTECTED)
+# TAB 1: THE PERFECTED ULTRA CAPTIONER
+# (Aapka ek bhi purana logic nahi hataya gaya hai)
 # ==========================================
 with tab1:
+    st.markdown("### 🎬 Official 50+ Style Captioning System")
+    
     col1, col2 = st.columns(2)
-    c_lang = col1.selectbox("Audio Source", ["Hinglish", "Hindi", "Urdu", "English", "Punjabi"])
-    c_mode = col2.selectbox("Word Display", ["1 Word (Fast)", "2 Words", "Full Sentence"])
+    c_lang = col1.selectbox("Audio Language", ["Hinglish", "Hindi", "Urdu", "English", "Punjabi", "Arabic", "Spanish"])
+    c_mode = col2.selectbox("Word Display Logic", ["1 Word (Fast & Viral)", "2 Words", "Full Sentence"])
     
     col3, col4 = st.columns(2)
-    c_font = col3.selectbox("Font Style", ["Cinematic Bold", "Modern Clean", "Classic Serif"])
-    c_anim = col4.selectbox("Text Effect", ["Smooth Fade", "Pop-Up", "Static"])
+    c_font = col3.selectbox("Font Style", ["Official Bold", "Modern Sans", "Classic Serif"])
+    c_anim = col4.selectbox("Animation Style", ["Pop-Up", "Glow-Pulse", "Shake", "Static"])
     
     col5, col6, col7 = st.columns(3)
-    c_size = col5.slider("Text Size", 20, 150, 70)
-    c_color = col6.color_picker("Text Color", "#FFFFFF")
+    c_size = col5.slider("Caption Size", 20, 150, 75)
+    c_color = col6.color_picker("Text Color", "#FFFF00")
     c_outline = col7.color_picker("Outline Color", "#000000")
     
-    c_pos = st.selectbox("Vertical Position", ["Bottom", "Middle", "Top"])
+    c_pos = st.selectbox("Position on Screen", ["Bottom Center", "Middle", "Top Center"])
     
-    c_vid = st.file_uploader("Upload Video File", type=["mp4", "mov"], key="cap")
+    c_vid = st.file_uploader("Upload Video for Captions", type=["mp4", "mov"], key="cap")
     
-    if c_vid and st.button("PROCESS CAPTIONS"):
+    if c_vid and st.button("🚀 GENERATE MASTER CAPTIONS"):
         with tempfile.TemporaryDirectory() as tmp:
             v_in, v_out = os.path.join(tmp, "i.mp4"), os.path.join(tmp, "o.mp4")
             with open(v_in, "wb") as f: f.write(c_vid.getbuffer())
             
-            st.info("Extracting and analyzing audio...")
+            st.info("🎙️ Step 1/4: Hearing Audio perfectly...")
             model_w = load_whisper()
             res = model_w.transcribe(v_in, language="hi" if c_lang == "Hinglish" else c_lang.lower()[:2])
             
-            st.info("Generating Roman Script (Transliteration)...")
+            st.info("✍️ Step 2/4: Converting to Roman Script (No Translation Rule Active)...")
             genai.configure(api_key=user_key)
-            gemini = genai.GenerativeModel('gemini-pro') # SAFE MODEL
+            gemini = genai.GenerativeModel('gemini-1.5-flash')
             raw_input = "\n".join([f"{i}>>{s['text']}" for i, s in enumerate(res['segments'])])
-            prompt = "TRANSLITERATE ONLY. NO TRANSLATION. Convert to ROMAN SCRIPT (A-Z). JSON array only:\n" + raw_input
+            prompt = "STRICT RULE: TRANSLITERATE ONLY. DO NOT TRANSLATE. Convert to ROMAN SCRIPT (A-Z only). Example: 'Kaisa hai' remains 'Kaisa hai'. Return ONLY a valid JSON array of strings matching the input lines:\n" + raw_input
             
             try:
                 ai_res = gemini.generate_content(prompt)
@@ -162,7 +159,6 @@ with tab1:
             except Exception as e:
                 for s in res['segments']: s["hinglish"] = s['text']
 
-            # Word Breakdown
             final_segs = []
             words_per_seg = 1 if "1 Word" in c_mode else (2 if "2 Words" in c_mode else 999)
             
@@ -177,9 +173,11 @@ with tab1:
                     duration = (s['end'] - s['start']) / len(words)
                     for i in range(0, len(words), words_per_seg):
                         chunk = " ".join(words[i:i+words_per_seg])
-                        final_segs.append({'start': s['start'] + (i * duration), 'end': s['start'] + ((i + words_per_seg) * duration), 'text': chunk})
+                        start_time = s['start'] + (i * duration)
+                        end_time = s['start'] + ((i + words_per_seg) * duration)
+                        final_segs.append({'start': start_time, 'end': end_time, 'text': chunk})
 
-            st.info("Rendering visual elements...")
+            st.info("🎬 Step 3/4: Rendering 3D Animations & Syncing Captions...")
             cap = cv2.VideoCapture(v_in)
             fps = cap.get(cv2.CAP_PROP_FPS)
             w, h = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -204,23 +202,32 @@ with tab1:
                     draw = ImageDraw.Draw(img)
                     
                     current_size = c_size
-                    if c_anim == "Pop-Up": current_size = int(c_size * (1.1 if f_idx % 10 < 5 else 1.0))
+                    offset_x, offset_y = 0, 0
+                    
+                    if c_anim == "Pop-Up":
+                        current_size = int(c_size * (1.15 if f_idx % 10 < 5 else 1.0))
+                    elif c_anim == "Glow-Pulse":
+                        current_size = int(c_size * (1.0 + 0.1 * np.sin(f_idx * 0.4)))
+                    elif c_anim == "Shake":
+                        offset_x = int(5 * np.sin(f_idx * 0.8))
                     
                     font = get_pro_font(c_font, current_size)
-                    lines = wrap_text_logic(txt, font, w * 0.85)
+                    
+                    max_w = w * 0.85
+                    lines = wrap_text_logic(txt, font, max_w)
                     total_h = len(lines) * (current_size + 10)
                     
-                    if "Bottom" in c_pos: start_y = h - total_h - 100
-                    elif "Top" in c_pos: start_y = 100
+                    if "Bottom" in c_pos: start_y = h - total_h - 130
+                    elif "Top" in c_pos: start_y = 130
                     else: start_y = (h - total_h) // 2
 
                     for i, line in enumerate(lines):
                         lw = font.getbbox(line)[2]
-                        lx = (w - lw) // 2
-                        ly = start_y + i * (current_size + 10)
+                        lx = ((w - lw) // 2) + offset_x
+                        ly = start_y + i * (current_size + 10) + offset_y
                         
-                        for ox in range(-3, 4):
-                            for oy in range(-3, 4):
+                        for ox in range(-4, 5):
+                            for oy in range(-4, 5):
                                 draw.text((lx+ox, ly+oy), line, font=font, fill=(or_, og, ob))
                         draw.text((lx, ly), line, font=font, fill=(r, g, b))
                     
@@ -232,60 +239,58 @@ with tab1:
                 
             cap.release(); writer.release()
             
+            st.info("🔊 Step 4/4: Merging Original Audio...")
             with VideoFileClip(v_in) as orig_vid:
                 with VideoFileClip(v_out + "_tmp.mp4") as proc_vid:
                     final_clip = proc_vid.set_audio(orig_vid.audio)
                     final_clip.write_videofile(v_out, codec="libx264", audio_codec="aac", logger=None)
             
-            st.success("Rendering Complete!")
+            st.success("✅ WD PRO CAPTION MASTERPIECE READY!")
             st.video(v_out)
-            with open(v_out, "rb") as file: st.download_button("DOWNLOAD VIDEO", file, "wdpro_captions.mp4")
+            with open(v_out, "rb") as file: st.download_button("📥 DOWNLOAD YOUR VIDEO", file, "wdpro_captions.mp4")
 
 # ==========================================
-# TAB 2: AI DUBBING (FIXED API ERROR)
+# TAB 2: AI DUBBING
 # ==========================================
 with tab2:
+    st.markdown("### 🎙️ AI Language Dubbing")
     d_target = st.selectbox("Translate Audio To", ["English", "Hindi"])
-    d_vid = st.file_uploader("Upload Video File", type=["mp4"], key="dub")
+    d_vid = st.file_uploader("Upload Video", type=["mp4"], key="dub")
     
-    if d_vid and st.button("START DUBBING"):
+    if d_vid and st.button("🎙️ START DUBBING"):
         with tempfile.TemporaryDirectory() as tmp:
             v_in, v_out = os.path.join(tmp, "in.mp4"), os.path.join(tmp, "out.mp4")
             with open(v_in, "wb") as f: f.write(d_vid.getbuffer())
             
-            st.info("Step 1: Extracting Audio...")
+            st.info("Hearing original audio...")
             trans = load_whisper().transcribe(v_in)
             
-            st.info("Step 2: Translating Script...")
+            st.info("Translating script via AI...")
             genai.configure(api_key=user_key)
-            try:
-                # SAFE MODEL USED HERE
-                model_g = genai.GenerativeModel('gemini-pro')
-                ai_resp = model_g.generate_content(f"Translate this text to {d_target} directly. No intro, just translation: {trans['text']}")
-                translated_txt = ai_resp.text
-                
-                st.info("Step 3: Generating Studio Voice...")
-                lang_code = 'en' if d_target == "English" else 'hi'
-                tts = gTTS(translated_txt, lang=lang_code)
-                audio_path = os.path.join(tmp, "dub.mp3")
-                tts.save(audio_path)
-                
-                with VideoFileClip(v_in) as video:
-                    with AudioFileClip(audio_path) as new_audio:
-                        final_video = video.set_audio(new_audio.set_duration(video.duration))
-                        final_video.write_videofile(v_out, codec="libx264", audio_codec="aac", logger=None)
-                
-                st.success("Dubbing Complete!")
-                st.video(v_out)
-                with open(v_out, "rb") as file: st.download_button("DOWNLOAD DUBBED VIDEO", file, "wdpro_dub.mp4")
-            except Exception as e:
-                st.error(f"API Error. Check Key or try again later. Details: {e}")
+            model_g = genai.GenerativeModel('gemini-1.5-flash')
+            translated_txt = model_g.generate_content(f"Translate this script strictly to {d_target}: {trans['text']}").text
+            
+            st.info("Generating AI Voice & Merging...")
+            lang_code = 'en' if d_target == "English" else 'hi'
+            tts = gTTS(translated_txt, lang=lang_code)
+            audio_path = os.path.join(tmp, "dub.mp3")
+            tts.save(audio_path)
+            
+            with VideoFileClip(v_in) as video:
+                with AudioFileClip(audio_path) as new_audio:
+                    final_video = video.set_audio(new_audio.set_duration(video.duration))
+                    final_video.write_videofile(v_out, codec="libx264", audio_codec="aac", logger=None)
+            
+            st.success("✅ DUBBING COMPLETE!")
+            st.video(v_out)
+            with open(v_out, "rb") as file: st.download_button("📥 DOWNLOAD DUBBED VIDEO", file, "wdpro_dubbed.mp4")
 
 # ==========================================
 # TAB 3: WATERMARK REMOVER
 # ==========================================
 with tab3:
-    w_vid = st.file_uploader("Upload Target Video", type=["mp4"], key="wm")
+    st.markdown("### 🚫 Smart Area Blur (Watermark Remover)")
+    w_vid = st.file_uploader("Upload Video", type=["mp4"], key="wm")
     
     if w_vid:
         t_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4")
@@ -296,14 +301,14 @@ with tab3:
         cap_temp.release()
         
         col1, col2 = st.columns(2)
-        wx = col1.slider("X Position", 0, v_width, int(v_width*0.1))
-        wy = col2.slider("Y Position", 0, v_height, int(v_height*0.1))
-        ww = col1.slider("Blur Width", 10, v_width, 150)
-        wh = col2.slider("Blur Height", 10, v_height, 80)
+        wx = col1.slider("X Position (Left to Right)", 0, v_width, int(v_width*0.1))
+        wy = col2.slider("Y Position (Top to Bottom)", 0, v_height, int(v_height*0.1))
+        ww = col1.slider("Width of Blur Area", 10, v_width, 150)
+        wh = col2.slider("Height of Blur Area", 10, v_height, 80)
         
         w_vid.seek(0)
         
-        if st.button("APPLY SMART BLUR"):
+        if st.button("🚫 APPLY BLUR EFFECT"):
             with tempfile.TemporaryDirectory() as tmp:
                 v_in, v_out = os.path.join(tmp, "in.mp4"), os.path.join(tmp, "out.mp4")
                 with open(v_in, "wb") as f: f.write(w_vid.getbuffer())
@@ -312,7 +317,7 @@ with tab3:
                 fps = cap.get(cv2.CAP_PROP_FPS)
                 writer = cv2.VideoWriter(v_out + "_tmp.mp4", cv2.VideoWriter_fourcc(*"mp4v"), fps, (v_width, v_height))
                 
-                st.info("Applying blur effect to selected region...")
+                st.info("Processing frames to blur selected area...")
                 p_bar = st.progress(0)
                 total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
                 f_idx = 0
@@ -326,7 +331,7 @@ with tab3:
                     
                     roi = frame[wy:y2, wx:x2]
                     if roi.size != 0:
-                        frame[wy:y2, wx:x2] = cv2.GaussianBlur(roi, (51, 51), 0)
+                        frame[wy:y2, wx:x2] = cv2.GaussianBlur(roi, (61, 61), 0)
                         
                     writer.write(frame)
                     f_idx += 1
@@ -338,54 +343,52 @@ with tab3:
                     with VideoFileClip(v_out + "_tmp.mp4") as proc_vid:
                         proc_vid.set_audio(orig_vid.audio).write_videofile(v_out, codec="libx264", audio_codec="aac", logger=None)
                 
-                st.success("Watermark Masked!")
+                st.success("✅ WATERMARK BLURRED SUCCESSFULLY!")
                 st.video(v_out)
-                with open(v_out, "rb") as file: st.download_button("DOWNLOAD VIDEO", file, "wdpro_clean.mp4")
+                with open(v_out, "rb") as file: st.download_button("📥 DOWNLOAD VIDEO", file, "wdpro_nologo.mp4")
 
 # ==========================================
-# TAB 4: VIDEO PRO (COLOR & SHARPNESS)
+# TAB 4: VIDEO PRO ENHANCE (ERROR FIXED HERE)
 # ==========================================
 with tab4:
-    st.info("Note: True 4K upscaling requires powerful GPUs. This tool applies High-Definition Crisp Sharpening & Color Grading.")
+    st.markdown("### 🎨 Professional Color Grading")
     p_vid = st.file_uploader("Upload Clip", type=["mp4"], key="pro")
-    grade_preset = st.selectbox("Cinematic LUTs", ["Vibrant Gaming (High Contrast)", "Cinematic Dark (Moody)", "Cool Tone"])
+    grade_preset = st.selectbox("Cinematic Preset", ["Vibrant Gaming (High Contrast/Sat)", "Cinematic Dark (Moody)", "Cool Blue (Sci-Fi)"])
     
-    if p_vid and st.button("ENHANCE VIDEO QUALITY"):
+    if p_vid and st.button("✨ APPLY ENHANCEMENTS"):
         with tempfile.TemporaryDirectory() as tmp:
             v_in, v_out = os.path.join(tmp, "in.mp4"), os.path.join(tmp, "out.mp4")
             with open(v_in, "wb") as f: f.write(p_vid.getbuffer())
             
-            st.info("Processing visual enhancements...")
+            st.info("Enhancing colors and sharpening details...")
             cap = cv2.VideoCapture(v_in)
-            fps = cap.get(cv2.CAP_PROP_FPS)
-            w, h = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            fps, w, h = cap.get(cv2.CAP_PROP_FPS), int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
             writer = cv2.VideoWriter(v_out + "_tmp.mp4", cv2.VideoWriter_fourcc(*"mp4v"), fps, (w, h))
             
             total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
             f_idx = 0
             p_bar = st.progress(0)
             
-            # Crisp Sharpening Matrix
             kernel_sharpen = np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]])
             
             while True:
                 ret, frame = cap.read()
                 if not ret: break
                 
-                if grade_preset == "Vibrant Gaming (High Contrast)":
+                if grade_preset == "Vibrant Gaming (High Contrast/Sat)":
                     frame = cv2.convertScaleAbs(frame, alpha=1.2, beta=10)
                     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
                     hsv[:,:,1] = cv2.add(hsv[:,:,1], 30)
-                    frame = cv2.cvtColor(hsv, cv2.HSV_BGR)
+                    # YAHAN ERROR THA JO MENE THEEK KIYA HAI (cv2.COLOR_HSV2BGR)
+                    frame = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
                 elif grade_preset == "Cinematic Dark (Moody)":
-                    frame = cv2.convertScaleAbs(frame, alpha=1.05, beta=-15)
-                elif grade_preset == "Cool Tone":
+                    frame = cv2.convertScaleAbs(frame, alpha=1.05, beta=-20)
+                elif grade_preset == "Cool Blue (Sci-Fi)":
                     b, g, r = cv2.split(frame)
                     b = cv2.add(b, 20)
                     frame = cv2.merge((b, g, r))
-                    frame = cv2.convertScaleAbs(frame, alpha=1.05, beta=0)
+                    frame = cv2.convertScaleAbs(frame, alpha=1.1, beta=0)
 
-                # Apply Crisp Sharpness
                 frame = cv2.filter2D(frame, -1, kernel_sharpen)
                 
                 writer.write(frame)
@@ -398,7 +401,7 @@ with tab4:
                 with VideoFileClip(v_out + "_tmp.mp4") as proc_vid:
                     proc_vid.set_audio(orig_vid.audio).write_videofile(v_out, codec="libx264", audio_codec="aac", logger=None)
             
-            st.success("Enhancement Complete!")
+            st.success("✅ VIDEO ENHANCED & GRADED!")
             st.video(v_out)
-            with open(v_out, "rb") as file: st.download_button("DOWNLOAD ENHANCED VIDEO", file, "wdpro_enhanced.mp4")
-                
+            with open(v_out, "rb") as file: st.download_button("📥 DOWNLOAD ENHANCED VIDEO", file, "wdpro_enhanced.mp4")
+        
