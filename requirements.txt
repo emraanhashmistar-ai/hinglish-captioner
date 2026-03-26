@@ -1,0 +1,7 @@
+streamlit
+moviepy
+openai-whisper
+anthropic
+opencv-python
+Pillow
+numpy
