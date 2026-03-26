@@ -1,7 +1,8 @@
 streamlit
-moviepy
+moviepy==1.0.3
+decorator==4.4.2
 openai-whisper
 anthropic
-opencv-python
+opencv-python-headless
 Pillow
 numpy
