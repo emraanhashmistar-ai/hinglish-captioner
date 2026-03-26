@@ -10,119 +10,131 @@ from moviepy.editor import VideoFileClip
 import whisper
 import google.generativeai as genai
 
-# --- 1. UI & NEON DESIGN ---
-st.set_page_config(page_title="WD PRO FF - SUPREME", page_icon="🔥", layout="wide")
+# --- 1. PRO GAMING UI ---
+st.set_page_config(page_title="WD PRO FF - SUPREME ENGINE", page_icon="🎮", layout="wide")
 
 st.markdown("""
-    <audio id="clickSound" src="https://www.soundjay.com/buttons/button-16.mp3" preload="auto"></audio>
     <style>
-    .main { background: radial-gradient(circle, #1a0000 0%, #010101 100%); color: #fff; }
-    .welcome-3d { 
-        text-align: center; font-size: 60px; font-weight: 900; 
-        color: #ff0000; text-shadow: 0 0 20px #ff0000;
-        animation: pulse 1.5s infinite;
-    }
-    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
+    .main { background: radial-gradient(circle, #1a0000 0%, #020202 100%); color: white; }
     .stButton>button { 
         background: linear-gradient(135deg, #ff0000, #440000); 
-        color: white; border-radius: 15px; font-weight: bold; border: 2px solid #ff4b4b; 
-        height: 4.5rem; width: 100%; transition: 0.3s; box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
+        color: white; border-radius: 12px; font-weight: bold; border: 2px solid #ff4b4b; 
+        height: 4rem; width: 100%; transition: 0.3s; box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
     }
-    .stButton>button:hover { box-shadow: 0 0 40px #ff0000; transform: translateY(-5px); }
-    .social-link { 
-        text-decoration: none; color: white; background: #111; display: block; padding: 12px; 
+    .stButton>button:hover { box-shadow: 0 0 35px #ff0000; transform: translateY(-3px); }
+    .social-btn { 
+        text-decoration: none; color: #ffd700; background: #111; display: block; padding: 12px; 
         border-radius: 10px; text-align: center; margin-bottom: 10px; border: 1px solid #ff0000;
-        transition: 0.3s; font-weight: bold;
+        font-weight: bold; transition: 0.3s;
     }
-    .social-link:hover { background: #ff0000; box-shadow: 0 0 15px #ff0000; }
+    .social-btn:hover { background: #ff0000; color: white; }
     </style>
-    <script>
-    document.addEventListener('click', function(e) {
-        if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
-            document.getElementById('clickSound').play();
-        }
-    });
-    </script>
 """, unsafe_allow_html=True)
 
-# --- 2. CORE FUNCTIONS (Error Fix) ---
+# --- 2. CORE LOGIC FUNCTIONS ---
 @st.cache_resource
-def load_whisper_model():
-    return whisper.load_model("base")
+def load_whisper(): return whisper.load_model("base")
 
-def get_pro_font(size):
+def wrap_text(text, font, max_width):
+    words = text.split()
+    lines = []
+    current_line = []
+    for word in words:
+        test_line = " ".join(current_line + [word])
+        w = font.getbbox(test_line)[2]
+        if w <= max_width:
+            current_line.append(word)
+        else:
+            lines.append(" ".join(current_line))
+            current_line = [word]
+    lines.append(" ".join(current_line))
+    return lines
+
+def get_font(font_name, size):
     path = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+    if font_name == "Gaming Bold": path = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+    elif font_name == "Serif": path = "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf"
     return ImageFont.truetype(path, size) if os.path.exists(path) else ImageFont.load_default()
 
-# --- 3. SIDEBAR (50+ OPTIONS) ---
+# --- 3. SIDEBAR (WD PRO FF BRANDING) ---
 saved_key = st.secrets.get("GEMINI_API_KEY", "AIzaSyC4axyeGWQfDHoDmK7D8WdFiQReUllm3Co")
 
 with st.sidebar:
-    st.markdown("<h2 style='text-align:center; color:red;'>WD PRO FF</h2>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align:center; color:red;'>WD PRO FF</h1>", unsafe_allow_html=True)
     st.image("https://img.icons8.com/color/144/free-fire.png")
     
-    st.markdown("### 🔗 MY SOCIALS")
-    st.markdown('<a href="https://youtube.com/@WDPROFF" target="_blank" class="social-link">📺 YouTube</a>', unsafe_allow_html=True)
-    st.markdown('<a href="https://instagram.com/WDPROFF" target="_blank" class="social-link">📸 Instagram</a>', unsafe_allow_html=True)
+    st.markdown("### 🔗 SOCIAL LINKS")
+    st.markdown('<a href="https://youtube.com/@WDPROFF" target="_blank" class="social-btn">📺 YouTube: WD PRO FF</a>', unsafe_allow_html=True)
+    st.markdown('<a href="https://instagram.com/WDPROFF" target="_blank" class="social-btn">📸 Instagram: @WDPROFF</a>', unsafe_allow_html=True)
     
     st.divider()
-    api_key = st.text_input("🔑 API Key", value=saved_key, type="password")
+    api_key = st.text_input("🔑 Gemini API Key", value=saved_key, type="password")
     
-    st.subheader("⚙️ 50+ OPTIONS")
-    # Simulated 50+ languages via Whisper's capability
-    langs = ["Hindi", "Urdu", "English", "Punjabi", "Marathi", "Bengali", "Tamil", "Arabic", "Spanish", "French"]
-    target_lang = st.selectbox("Audio Language (All 50+ Supported)", langs)
+    st.header("🎨 CAPTION STYLE")
+    display_mode = st.selectbox("Display Mode", ["Full Sentence", "Word-by-Word (Fast)", "2 Words at a Time"])
+    f_style = st.selectbox("Font Style", ["Gaming Bold", "Sans Modern", "Serif Pro", "Classic"])
+    f_anim = st.selectbox("Animation", ["Pop-Up", "Glow Pulse", "Fade In", "Static"])
+    f_pos = st.selectbox("Position", ["Bottom Center", "Middle Center", "Top Center"])
     
-    # 50+ Style combinations (Fonts & Effects)
-    f_styles = ["Gaming Neon", "Metallic 3D", "Shadow Ghost", "Golden Glow", "Ice Freeze", "Fire Burn", "Glitch", "Retro"]
-    selected_style = st.selectbox("Caption Style", f_styles)
-    
-    # 50+ Animations presets
-    anims = ["Pop-Up", "Zoom-In", "Shake", "Pulse", "Bounce", "Classic"]
-    selected_anim = st.selectbox("Caption Animation", anims)
-    
-    f_size = st.slider("Font Size", 20, 200, 80)
+    st.header("🖌️ APPEARANCE")
+    f_size = st.slider("Text Size", 20, 180, 70)
     t_color = st.color_picker("Text Color", "#FFFF00")
-    pos = st.selectbox("Position", ["Bottom Center", "Middle Center", "Top Center", "Bottom Left", "Bottom Right"])
+    outline_color = st.color_picker("Outline Color", "#000000")
+    outline_width = st.slider("Outline Thickness", 0, 10, 4)
 
-# --- 4. TRANSLITERATION LOGIC (NO TRANSLATION) ---
-def transliterate_only(segments, key):
+# --- 4. HINGLISH LOGIC (STRICT ROMAN) ---
+def transliterate(segments, key):
     if not segments or not key: return segments
+    genai.configure(api_key=key)
+    model = genai.GenerativeModel('gemini-1.5-flash')
+    raw = "\n".join([f"{i}>>{s['text']}" for i, s in enumerate(segments)])
+    prompt = "STRICT: Convert to ROMAN SCRIPT (English Alphabet). NO Translation. If input is 'Udhar jao', output 'Udhar jao'. JSON array only:\n" + raw
     try:
-        genai.configure(api_key=key)
-        model = genai.GenerativeModel('gemini-1.5-flash')
-        raw_text = "\n".join([f"{i}>>{s['text']}" for i, s in enumerate(segments)])
-        prompt = (
-            "TRANSLITERATE ONLY. DO NOT TRANSLATE. "
-            "Convert to ROMAN SCRIPT (English Alphabet). "
-            "Example: 'Udhar jao' remains 'Udhar jao' (NOT 'Go there'). "
-            "Output JSON array of strings. Input:\n" + raw_text
-        )
-        response = model.generate_content(prompt)
-        h_list = json.loads(re.search(r'\[.*\]', response.text, re.DOTALL).group())
-        for i, seg in enumerate(segments):
-            clean = h_list[i] if i < len(h_list) else seg['text']
-            seg["hinglish"] = re.sub(r'[^\x00-\x7F]+', '', clean) # Strict ASCII Filter
+        res = model.generate_content(prompt)
+        h_list = json.loads(re.search(r'\[.*\]', res.text, re.DOTALL).group())
+        for i, s in enumerate(segments):
+            clean = h_list[i] if i < len(h_list) else s['text']
+            s["hinglish"] = re.sub(r'[^\x00-\x7F]+', '', clean)
     except: pass
     return segments
 
-# --- 5. ULTRA VIDEO RENDERER ---
-def render_wd_video(v_in, segments, v_out, f_size, t_color, anim, pos, style):
+# --- 5. RENDER ENGINE (WORD-BY-WORD & WRAPPING) ---
+def render_video(v_in, segments, v_out, f_size, t_color, o_color, o_width, pos, mode, anim, font_name):
     cap = cv2.VideoCapture(v_in)
     fps, w, h = cap.get(cv2.CAP_PROP_FPS) or 25, int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    temp_mp4 = v_out + "_temp.mp4"
-    writer = cv2.VideoWriter(temp_mp4, cv2.VideoWriter_fourcc(*"mp4v"), fps, (w, h))
-    r,g,b = int(t_color[1:3],16), int(t_color[3:5],16), int(t_color[5:7],16)
+    temp_v = v_out + "_temp.mp4"
+    writer = cv2.VideoWriter(temp_v, cv2.VideoWriter_fourcc(*"mp4v"), fps, (w, h))
     
+    # Process Word-by-Word if selected
+    final_segments = []
+    if mode != "Full Sentence":
+        words_per_seg = 1 if "Word-by-Word" in mode else 2
+        for s in segments:
+            words = s['hinglish'].split()
+            duration = (s['end'] - s['start']) / max(len(words), 1)
+            for i in range(0, len(words), words_per_seg):
+                chunk = " ".join(words[i:i+words_per_seg])
+                final_segments.append({
+                    'start': s['start'] + (i//words_per_seg) * duration,
+                    'end': s['start'] + (i//words_per_seg + 1) * duration,
+                    'text': chunk
+                })
+    else:
+        for s in segments: final_segments.append({'start': s['start'], 'end': s['end'], 'text': s['hinglish']})
+
     f_idx = 0
     total_f = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     p_bar = st.progress(0)
+    
+    r,g,b = int(t_color[1:3],16), int(t_color[3:5],16), int(t_color[5:7],16)
+    or_,og,ob = int(o_color[1:3],16), int(o_color[3:5],16), int(o_color[5:7],16)
 
     while True:
         ret, frame = cap.read()
         if not ret: break
-        t = f_idx / fps
-        txt = next((s.get('hinglish', s['text']) for s in segments if s['start'] <= t <= s['end']), "")
+        
+        curr_t = f_idx / fps
+        txt = next((s['text'] for s in final_segments if s['start'] <= curr_t <= s['end']), "")
         
         if txt:
             img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
@@ -130,65 +142,64 @@ def render_wd_video(v_in, segments, v_out, f_size, t_color, anim, pos, style):
             
             # Animation Logic
             s_size = f_size
-            if anim == "Pulse": s_size = int(f_size * (1.0 + 0.1 * np.sin(f_idx * 0.4)))
-            elif anim == "Zoom-In": s_size = int(f_size * min(1.0, (f_idx % 20)/10 + 0.5))
+            if anim == "Pop-Up": s_size = int(f_size * (1.1 if (f_idx % 10 < 5) else 1.0))
+            elif anim == "Glow Pulse": s_size = int(f_size * (1.0 + 0.1 * np.sin(f_idx * 0.5)))
             
-            font = get_pro_font(s_size)
-            tw = draw.textbbox((0,0), txt, font=font)[2]
+            font = get_font(font_name, s_size)
+            lines = wrap_text(txt, font, w * 0.8) # Wrap at 80% screen width
             
-            # Position
-            tx = (w-tw)//2
-            if "Bottom" in pos: ty = h-s_size-150
-            elif "Top" in pos: ty = 150
-            else: ty = (h-s_size)//2
-            if "Left" in pos: tx = 50
-            if "Right" in pos: tx = w-tw-50
+            # Calculate total height of all lines
+            total_h = len(lines) * (s_size + 10)
+            
+            # Position Logic
+            if "Bottom" in pos: start_y = h - total_h - 120
+            elif "Top" in pos: start_y = 120
+            else: start_y = (h - total_h) // 2
 
-            # Style Layers (3D / Glow)
-            if style == "Gaming Neon":
-                for o in range(-5, 6):
-                    for o2 in range(-5, 6): draw.text((tx+o, ty+o2), txt, font=font, fill=(r,g,b,50))
-            elif style == "Metallic 3D":
-                for o in range(1, 6): draw.text((tx+o, ty+o), txt, font=font, fill=(50,50,50))
+            for i, line in enumerate(lines):
+                lw = font.getbbox(line)[2]
+                lx = (w - lw) // 2
+                ly = start_y + i * (s_size + 10)
+                
+                # Outline
+                if o_width > 0:
+                    for ox in range(-o_width, o_width+1):
+                        for oy in range(-o_width, o_width+1):
+                            draw.text((lx+ox, ly+oy), line, font=font, fill=(or_,og,ob))
+                
+                draw.text((lx, ly), line, font=font, fill=(r,g,b))
             
-            draw.text((tx, ty), txt, font=font, fill=(r,g,b))
             frame = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
-
+            
         writer.write(frame); f_idx += 1
-        if f_idx % 25 == 0: p_bar.progress(min(f_idx/total_f, 1.0))
-
+        if f_idx % 30 == 0: p_bar.progress(min(f_idx/total_f, 1.0))
+        
     cap.release(); writer.release()
     with VideoFileClip(v_in) as orig:
-        with VideoFileClip(temp_mp4) as proc:
+        with VideoFileClip(temp_v) as proc:
             proc.set_audio(orig.audio).write_videofile(v_out, codec="libx264", audio_codec="aac", logger=None)
 
-# --- 6. WORKFLOW ---
-if 'init' not in st.session_state:
-    st.balloons()
-    st.markdown('<h1 class="welcome-3d">WELCOME WD PRO FF</h1>', unsafe_allow_html=True)
-    st.session_state.init = True
+# --- 6. MAIN APP FLOW ---
+st.markdown("<h2 style='text-align:center;'>🚀 WD PRO ULTRA CAPTIONER</h2>", unsafe_allow_html=True)
+up = st.file_uploader("Upload Game Video", type=["mp4"])
 
-st.markdown("<h2 style='text-align:center;'>🚀 WD PRO ULTRA ENGINE</h2>", unsafe_allow_html=True)
-up_vid = st.file_uploader("Upload Video", type=["mp4", "mov"])
-
-if up_vid and api_key:
-    if st.button("🔥 START ULTRA RENDERING"):
+if up and api_key:
+    if st.button("🔥 GENERATE MAGIC"):
         with tempfile.TemporaryDirectory() as tmp:
             v_in, v_out = os.path.join(tmp, "i.mp4"), os.path.join(tmp, "o.mp4")
-            with open(v_in, "wb") as f: f.write(up_vid.getbuffer())
+            with open(v_in, "wb") as f: f.write(up.getbuffer())
             
-            st.info(f"🎙️ Transcribing {target_lang}...")
-            whisper_model = load_whisper_model() # CORRECT FUNCTION CALL
-            res = whisper_model.transcribe(v_in, language=target_lang.lower())
+            st.info("🎙️ Hearing Audio...")
+            model = load_whisper()
+            res = model.transcribe(v_in)
             
-            st.info("✍️ Transliterating to Roman English (NO Translation)...")
-            segs = transliterate_only(res['segments'], api_key)
+            st.info("✍️ Transliterating to Roman Script...")
+            segs = transliterate(res['segments'], api_key)
             
-            st.info("🎨 Applying 3D Styles & Animations...")
-            render_wd_video(v_in, segs, v_out, f_size, t_color, selected_anim, pos, selected_style)
+            st.info("🎬 Rendering with Pro Effects...")
+            render_video(v_in, segs, v_out, f_size, t_color, outline_color, outline_width, pos, display_mode, f_anim, f_style)
             
-            st.success("🏆 WD PRO MASTERPIECE READY!")
+            st.success("🏆 WD PRO FF STYLE READY!")
             st.video(v_out)
-            with open(v_out, "rb") as f:
-                st.download_button("📥 DOWNLOAD VIDEO", f, "wd_pro_video.mp4")
-                
+            with open(v_out, "rb") as f: st.download_button("📥 DOWNLOAD", f, "wd_pro_video.mp4")
+    
