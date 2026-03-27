@@ -6,4 +6,3 @@ google-generativeai
 openai-whisper
 yt-dlp
 numpy
-Ye setup ab 100% full-proof hai. 🐼🔥
