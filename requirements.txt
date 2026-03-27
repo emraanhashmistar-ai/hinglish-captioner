@@ -1,3 +1,6 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+torchaudio
 streamlit
 moviepy
 opencv-python-headless
@@ -6,5 +9,3 @@ google-generativeai
 openai-whisper
 yt-dlp
 numpy
-
-Bhai, is baar sirf Copy ka button daba aur apni mehnat ka fal le. Tu jeet gaya! 👑🐼🔥
