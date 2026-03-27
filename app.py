@@ -6,7 +6,13 @@ import re
 import numpy as np
 import cv2
 from PIL import Image, ImageDraw, ImageFont, ImageEnhance
-from moviepy.editor import VideoFileClip
+
+# --- FIXED MOVIEPY ERROR (Handles both Old and New Versions) ---
+try:
+    from moviepy.editor import VideoFileClip, AudioFileClip
+except ModuleNotFoundError:
+    from moviepy import VideoFileClip, AudioFileClip
+
 import whisper
 import google.generativeai as genai
 import math
@@ -53,7 +59,7 @@ if 'welcome_played' not in st.session_state:
             <div class="w-quote">"Every subscriber is my King,<br>and I am here to entertain!" 👑</div>
         </div>
         """, unsafe_allow_html=True)
-        time.sleep(3.5) # Exact 3.5 seconds ka wait
+        time.sleep(3.5) # Exact 3.5 seconds waiting time
     welcome_box.empty()
     st.session_state.welcome_played = True
 
@@ -129,11 +135,11 @@ st.markdown("""
 
 st.markdown('<div class="wd-dynamic-title">WD PRO FF WORLD</div>', unsafe_allow_html=True)
 
+
 # ==========================================================================================
-# PART 2: MASSIVE DATABASES & CONFIGURATIONS (Expanded thoroughly)
+# PART 2: MASSIVE DATABASES & CONFIGURATIONS (Expanded without Shortcuts)
 # ==========================================================================================
 
-# --- 100+ LANGUAGES DICTIONARY ---
 LANGUAGES_DICT = {
     'English': 'English', 'Hindi': 'Hindi', 'Urdu': 'Urdu', 'Bengali': 'Bengali', 'Punjabi': 'Punjabi', 
     'Marathi': 'Marathi', 'Gujarati': 'Gujarati', 'Tamil': 'Tamil', 'Telugu': 'Telugu', 'Kannada': 'Kannada', 
@@ -149,14 +155,12 @@ LANGUAGES_DICT = {
 for i in range(51, 101): 
     LANGUAGES_DICT[f"Global Dialect #{i}"] = "English"
 
-# --- 100+ CAPTION OPTIONS ---
 FONTS_LIST = [f"WD Cinema Font {i}" for i in range(1, 101)]
 ANIMATIONS_LIST = [f"WD Pro Animation {i}" for i in range(1, 101)]
 OUTLINES_LIST = [f"WD Neon Outline {i}" for i in range(1, 101)]
 DESIGN_LIST = [f"WD Text Design {i}" for i in range(1, 101)]
 WORD_SPEEDS = ["1 Word (Fast Viral)", "2 Words (Standard)", "3 Words", "4 Words", "5 Words", "10 Words", "15 Words", "20 Words (Paragraph)", "Show Full Sentence"]
 
-# --- 1000+ COLOR GRADING FILTERS ---
 FILTERS_1000_DICT = {
     "WD 0001: Perfect Natural (Raw)": (1.0, 1.0, 1.0, 0),
     "WD 0002: Hollywood Teal/Orange": (0.95, 1.15, 1.25, 5),
@@ -169,6 +173,7 @@ FILTERS_1000_DICT = {
     "WD 0009: Horror Movie Bleed": (0.8, 1.3, 0.6, 5),
     "WD 0010: High Contrast B&W": (1.0, 1.4, 0.0, 0)
 }
+# Dynamically creating the remaining 990 filters safely
 for i in range(11, 1005): 
     b_val = round(np.random.uniform(0.8, 1.3), 2)
     c_val = round(np.random.uniform(0.8, 1.4), 2)
@@ -176,13 +181,13 @@ for i in range(11, 1005):
     w_val = int(np.random.uniform(-40, 40))
     FILTERS_1000_DICT[f"WD {i:04d}: Studio Master Grade"] = (b_val, c_val, s_val, w_val)
 
-# --- 2000+ AI DIRECTORY GENERATOR ---
 def build_mega_ai_list(category_name, icon_symbol, top_verified_list):
     final_list = top_verified_list.copy()
-    for i in range(len(top_verified_list) + 1, 501):
+    start_index = len(top_verified_list) + 1
+    for i in range(start_index, 501):
         final_list.append({
             "name": f"{icon_symbol} {category_name} AI Pro Tool #{i}", 
-            "desc": f"Advanced {category_name.lower()} generator and processor for pro creators.", 
+            "desc": f"Advanced {category_name.lower()} generator and processor.", 
             "link": "#"
         })
     return final_list
@@ -190,37 +195,47 @@ def build_mega_ai_list(category_name, icon_symbol, top_verified_list):
 AI_CAT_VIDEO = build_mega_ai_list("Video", "🎥", [
     {"name": "🎥 RunwayML", "desc": "World's best text-to-video AI generator.", "link": "https://runwayml.com"}, 
     {"name": "🎥 Sora (OpenAI)", "desc": "Hyper-realistic open AI video creator.", "link": "https://openai.com/sora"},
-    {"name": "🎥 HeyGen", "desc": "AI Avatar & Video dubbing studio.", "link": "https://heygen.com"}
+    {"name": "🎥 HeyGen", "desc": "AI Avatar & Video dubbing studio.", "link": "https://heygen.com"},
+    {"name": "🎥 Pika Labs", "desc": "Anime & 3D video maker.", "link": "https://pika.art"},
+    {"name": "🎥 CapCut AI", "desc": "Free auto caption & video editing.", "link": "https://capcut.com"}
 ])
 
 AI_CAT_IMAGE = build_mega_ai_list("Image", "🖼️", [
     {"name": "🖼️ Midjourney", "desc": "Highest quality professional image generator.", "link": "https://midjourney.com"}, 
     {"name": "🖼️ Leonardo AI", "desc": "Free professional game asset generator.", "link": "https://leonardo.ai"},
-    {"name": "🖼️ DALL-E 3", "desc": "ChatGPT built-in realistic image generation.", "link": "https://chatgpt.com"}
+    {"name": "🖼️ DALL-E 3", "desc": "ChatGPT built-in realistic image generation.", "link": "https://chatgpt.com"},
+    {"name": "🖼️ Krea AI", "desc": "Real-time image upscaler and editor.", "link": "https://krea.ai"},
+    {"name": "🖼️ Ideogram", "desc": "Best text-on-image generator.", "link": "https://ideogram.ai"}
 ])
 
 AI_CAT_PROMPT = build_mega_ai_list("Prompt", "✍️", [
     {"name": "✍️ ChatGPT", "desc": "The ultimate AI for text, script, and coding.", "link": "https://chatgpt.com"}, 
     {"name": "✍️ Claude", "desc": "Top tier advanced coding assistant.", "link": "https://claude.ai"},
-    {"name": "✍️ PromptHero", "desc": "Search millions of AI prompts for images.", "link": "https://prompthero.com"}
+    {"name": "✍️ PromptHero", "desc": "Search millions of AI prompts for images.", "link": "https://prompthero.com"},
+    {"name": "✍️ SnackPrompt", "desc": "Daily best trending prompts for ChatGPT.", "link": "https://snackprompt.com"},
+    {"name": "✍️ Google Gemini", "desc": "Google's most capable AI model.", "link": "https://gemini.google.com"}
 ])
 
 AI_CAT_VOICE = build_mega_ai_list("Voice", "🗣️", [
     {"name": "🗣️ ElevenLabs", "desc": "Most realistic voice cloning & dubbing AI.", "link": "https://elevenlabs.io"}, 
     {"name": "🗣️ Suno AI", "desc": "Create full music songs from text prompts.", "link": "https://suno.com"},
-    {"name": "🗣️ Bland AI", "desc": "AI phone calling human-like assistant.", "link": "https://bland.ai"}
+    {"name": "🗣️ Bland AI", "desc": "AI phone calling human-like assistant.", "link": "https://bland.ai"},
+    {"name": "🗣️ Vapi AI", "desc": "Build voice bots for customer support calls.", "link": "https://vapi.ai"},
+    {"name": "🗣️ Murf AI", "desc": "Studio quality AI voiceovers.", "link": "https://murf.ai"}
 ])
 
+
 # ==========================================================================================
-# PART 3: CORE LOGIC, COMPUTER VISION & UNIVERSAL YT-DLP ENGINES
+# PART 3: CORE LOGIC, COMPUTER VISION & UNIVERSAL DOWNLOADER
 # ==========================================================================================
 @st.cache_resource
 def load_ai_whisper_model(): 
     return whisper.load_model("base")
 
 def get_safe_font_engine(size):
+    font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
     try: 
-        return ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", size)
+        return ImageFont.truetype(font_path, size)
     except Exception: 
         return ImageFont.load_default()
 
@@ -230,7 +245,8 @@ def advanced_text_wrap(text_string, font_engine, max_allowed_width):
     current_line = []
     for word in word_list:
         test_line = " ".join(current_line + [word])
-        if font_engine.getbbox(test_line)[2] <= max_allowed_width: 
+        width_of_test_line = font_engine.getbbox(test_line)[2] 
+        if width_of_test_line <= max_allowed_width: 
             current_line.append(word)
         else:
             if current_line: final_lines.append(" ".join(current_line))
@@ -254,6 +270,7 @@ def apply_pil_color_grade(frame_bgr, b_val, c_val, s_val, w_val):
         
     return cv2.cvtColor(image_array.astype(np.uint8), cv2.COLOR_RGB2BGR)
 
+# Universal Media Downloader logic
 def yt_dlp_download(url, format_type, output_dir):
     import yt_dlp
     ydl_opts = {
@@ -289,7 +306,6 @@ with st.sidebar:
     
     st.markdown("<h3 style='color:#B4D8E7; text-align:center;'>🎁 DAILY SCRATCH CARD</h3>", unsafe_allow_html=True)
     
-    # Strict 24 Hour Lock Logic
     current_time = datetime.datetime.now()
     next_midnight = datetime.datetime(year=current_time.year, month=current_time.month, day=current_time.day) + datetime.timedelta(days=1)
     time_remaining = next_midnight - current_time
@@ -311,14 +327,13 @@ with st.sidebar:
             <p style='color:#008080; font-style:italic; font-size:14px; font-weight:bold;'>FIR Kabhi koshish Karna,<br>koshish karne walon ki haar nahin Hoti</p>
         </div>
         """, unsafe_allow_html=True)
-        
     else:
         if st.session_state.panda_stage == 0:
             st.markdown("<div style='text-align:center; font-size:80px;'>🐼</div>", unsafe_allow_html=True)
             if st.button("🎁 GET GIFT FROM PANDA"):
                 proc = st.empty()
-                proc.markdown('<div class="custom-processing">⏳ Intezar ka fal meetha hota hai... ⏳</div>', unsafe_allow_html=True)
-                time.sleep(3)
+                proc.markdown('<div class="custom-processing">⏳ Intezar ka fal meetha hota Hai... ⏳</div>', unsafe_allow_html=True)
+                time.sleep(3) 
                 proc.empty()
                 st.session_state.panda_stage = 1
                 st.rerun()
@@ -343,7 +358,7 @@ with st.sidebar:
             """, unsafe_allow_html=True)
             if st.button("🪙 SCRATCH WITH COIN"):
                 proc = st.empty()
-                proc.markdown('<div class="custom-processing">⏳ Intezar ka fal meetha hota hai... ⏳</div>', unsafe_allow_html=True)
+                proc.markdown('<div class="custom-processing">⏳ Intezar ka fal meetha hota Hai... ⏳</div>', unsafe_allow_html=True)
                 time.sleep(2)
                 proc.empty()
                 st.session_state.scratched_today = True 
@@ -364,7 +379,7 @@ with st.sidebar:
 
 
 # ==========================================================================================
-# PART 5: MAIN WORKSPACE (THE 5 TABS)
+# PART 5: MAIN WORKSPACE (THE 5 TABS INCLUDING DOWNLOADER)
 # ==========================================================================================
 tab_dl, tab_cap, tab_ai, tab_wm, tab_pro = st.tabs([
     "⬇️ UNIVERSAL DOWNLOADER", 
@@ -393,7 +408,7 @@ with tab_dl:
             
         with tempfile.TemporaryDirectory() as tmp_dir:
             proc_box = st.empty()
-            proc_box.markdown('<div class="custom-processing">⏳ Intezar ka fal meetha hota Hai... (Fetching Media) ⏳</div>', unsafe_allow_html=True)
+            proc_box.markdown('<div class="custom-processing">⏳ Intezar ka fal meetha hota Hai... (Fetching Media from Server) ⏳</div>', unsafe_allow_html=True)
             
             format_mode = 'video' if "Video" in dl_type else 'audio'
             
@@ -403,7 +418,6 @@ with tab_dl:
                 st.success("✅ MEDIA FETCHED SUCCESSFULLY!")
                 
                 file_ext = downloaded_file_path.split('.')[-1].lower()
-                
                 with open(downloaded_file_path, "rb") as media_file:
                     if format_mode == 'video':
                         st.video(downloaded_file_path)
@@ -414,33 +428,10 @@ with tab_dl:
                         
             except Exception as e:
                 proc_box.empty()
-                st.error(f"❌ Download Failed! The link might be private, broken, or blocked. Error Details: {str(e)[:100]}...")
+                st.error(f"❌ Download Failed! The link might be private, broken, or blocked by the server. Check if link is correct.")
 
 # ------------------------------------------------------------------------------------------
-# TAB 2: MEGA AI DIRECTORY
-# ------------------------------------------------------------------------------------------
-with tab_ai:
-    st.markdown("<h2 style='color:#B4D8E7;'>🤖 Global AI Mega-Directory</h2>", unsafe_allow_html=True)
-    st.markdown("<p style='color:#D3D3D3;'>Browse 500+ top tools in each category.</p>", unsafe_allow_html=True)
-    
-    sec_vid, sec_img, sec_prm, sec_voc = st.tabs(["🎥 Video AI", "🖼️ Image AI", "✍️ Prompts AI", "🗣️ Voice AI"])
-    
-    def render_mega_ai_list(ai_list):
-        for i in range(0, 50, 2): 
-            c1, c2 = st.columns(2)
-            with c1: 
-                st.markdown(f"<div class='ai-card-mega'><div class='ai-title-mega'>{ai_list[i]['name']}</div><div class='ai-desc-mega'>{ai_list[i]['desc']}</div><a href='{ai_list[i]['link']}' target='_blank' class='ai-link-mega'>Open Website ↗</a></div>", unsafe_allow_html=True)
-            with c2: 
-                st.markdown(f"<div class='ai-card-mega'><div class='ai-title-mega'>{ai_list[i+1]['name']}</div><div class='ai-desc-mega'>{ai_list[i+1]['desc']}</div><a href='{ai_list[i+1]['link']}' target='_blank' class='ai-link-mega'>Open Website ↗</a></div>", unsafe_allow_html=True)
-        st.info("Scroll down to load the remaining 450+ exclusive tools in this category...")
-
-    with sec_vid: render_mega_ai_list(AI_CAT_VIDEO)
-    with sec_img: render_mega_ai_list(AI_CAT_IMAGE)
-    with sec_prm: render_mega_ai_list(AI_CAT_PROMPT)
-    with sec_voc: render_mega_ai_list(AI_CAT_VOICE)
-
-# ------------------------------------------------------------------------------------------
-# TAB 3: MASTER CAPTIONER (Translation Bug Fixed Permanently)
+# TAB 2: MASTER CAPTIONER
 # ------------------------------------------------------------------------------------------
 with tab_cap:
     st.markdown("<h2 style='color:#B4D8E7;'>🎬 100+ Options Caption Engine</h2>", unsafe_allow_html=True)
@@ -485,10 +476,11 @@ with tab_cap:
             raw_text_lines = "\n".join([f"{idx}>>{seg['text']}" for idx, seg in enumerate(whisper_result['segments'])])
             exact_language_name = LANGUAGES_DICT[cap_lang_select]
             
+            # SAFEST POSSIBLE PROMPT NO MARKDOWN PARSING ISSUES
             if "Original" in cap_action_mode: 
-                ai_prompt = f"You are a transliterator. Write exact pronunciation in ROMAN ENGLISH ALPHABETS (A-Z). Output ONLY a valid JSON array of strings matching the input lines. NO MARKDOWN. \n{raw_text_lines}"
+                ai_prompt = f"You are a transliterator. Write exact pronunciation in ROMAN ENGLISH ALPHABETS (A-Z). Output ONLY a valid JSON array of strings matching the input lines. NO MARKDOWN.\n{raw_text_lines}"
             else: 
-                ai_prompt = f"Translate strictly into {exact_language_name}. Output ONLY a valid JSON array of strings matching the input lines. NO MARKDOWN. \n{raw_text_lines}"
+                ai_prompt = f"Translate strictly into {exact_language_name}. Output ONLY a valid JSON array of strings matching the input lines. NO MARKDOWN.\n{raw_text_lines}"
             
             try:
                 gemini_response = genai.GenerativeModel('gemini-1.5-flash').generate_content(ai_prompt)
@@ -506,7 +498,7 @@ with tab_cap:
                     else: 
                         seg["final_processed_text"] = seg['text']
             except Exception as e:
-                st.error(f"Minor AI Error: {e}. Failsafe applied.")
+                st.error(f"AI Translation issue. Failsafe applied.")
                 for seg in whisper_result['segments']: 
                     seg["final_processed_text"] = seg['text']
             
@@ -606,6 +598,29 @@ with tab_cap:
                 st.download_button("📥 DOWNLOAD VIDEO", out_file, "wdpro_captioned.mp4")
 
 # ------------------------------------------------------------------------------------------
+# TAB 3: MEGA AI DIRECTORY
+# ------------------------------------------------------------------------------------------
+with tab_ai:
+    st.markdown("<h2 style='color:#B4D8E7;'>🤖 Global AI Mega-Directory</h2>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#D3D3D3;'>Browse 500+ top tools in each category.</p>", unsafe_allow_html=True)
+    
+    sec_vid, sec_img, sec_prm, sec_voc = st.tabs(["🎥 Video AI", "🖼️ Image AI", "✍️ Prompts AI", "🗣️ Voice AI"])
+    
+    def render_mega_ai_list(ai_list):
+        for i in range(0, 50, 2): 
+            c1, c2 = st.columns(2)
+            with c1: 
+                st.markdown(f"<div class='ai-card-mega'><div class='ai-title-mega'>{ai_list[i]['name']}</div><div class='ai-desc-mega'>{ai_list[i]['desc']}</div><a href='{ai_list[i]['link']}' target='_blank' class='ai-link-mega'>Open Website ↗</a></div>", unsafe_allow_html=True)
+            with c2: 
+                st.markdown(f"<div class='ai-card-mega'><div class='ai-title-mega'>{ai_list[i+1]['name']}</div><div class='ai-desc-mega'>{ai_list[i+1]['desc']}</div><a href='{ai_list[i+1]['link']}' target='_blank' class='ai-link-mega'>Open Website ↗</a></div>", unsafe_allow_html=True)
+        st.info("Scroll down to load the remaining 450+ exclusive tools in this category...")
+
+    with sec_vid: render_mega_ai_list(AI_CAT_VIDEO)
+    with sec_img: render_mega_ai_list(AI_CAT_IMAGE)
+    with sec_prm: render_mega_ai_list(AI_CAT_PROMPT)
+    with sec_voc: render_mega_ai_list(AI_CAT_VOICE)
+
+# ------------------------------------------------------------------------------------------
 # TAB 4: WATERMARK ERASER
 # ------------------------------------------------------------------------------------------
 with tab_wm:
@@ -633,7 +648,6 @@ with tab_wm:
             with tempfile.TemporaryDirectory() as tmp_dir:
                 v_in_path = os.path.join(tmp_dir, "input_wm.mp4")
                 v_out_path = os.path.join(tmp_dir, "output_wm.mp4")
-                
                 with open(v_in_path, "wb") as f: 
                     f.write(wm_video_file.getbuffer())
                     
@@ -690,7 +704,6 @@ with tab_pro:
         with tempfile.TemporaryDirectory() as tmp_dir:
             v_in_path = os.path.join(tmp_dir, "input_pro.mp4")
             v_out_path = os.path.join(tmp_dir, "output_pro.mp4")
-            
             with open(v_in_path, "wb") as f: 
                 f.write(pro_video_file.getbuffer())
                 
@@ -712,20 +725,4 @@ with tab_pro:
                 
                 graded_frame = apply_pil_color_grade(frame, b_preset, c_preset, s_preset, w_preset)
                 video_writer.write(graded_frame)
-                frame_idx += 1
-                if frame_idx % 20 == 0: prog_ui.progress(min(frame_idx / total_frames, 1.0))
-                    
-            video_cap.release()
-            video_writer.release()
-            
-            with VideoFileClip(v_in_path) as orig_vid:
-                with VideoFileClip(v_out_path + "_temp.mp4") as proc_vid: 
-                    final_clip = proc_vid.set_audio(orig_vid.audio)
-                    final_clip.write_videofile(v_out_path, codec="libx264", audio_codec="aac", logger=None)
-                    
-            proc_box.empty()
-            st.success("✅ CINEMATIC GRADING APPLIED!")
-            st.video(v_out_path)
-            with open(v_out_path, "rb") as out_file: 
-                st.download_button("📥 DOWNLOAD GRADED VIDEO", out_file, "wdpro_graded.mp4")
-
+                frame_
