@@ -1,116 +1,178 @@
 import streamlit as st
 import tempfile
-import time
-import json
+import random
+import cv2
+import numpy as np
+from PIL import Image, ImageDraw, ImageFont
 
 st.set_page_config(page_title="WD PRO FF WORLD", layout="wide")
 
-# ---------- STATE ----------
-if "gender" not in st.session_state:
-    st.session_state.gender = None
-if "welcome_done" not in st.session_state:
-    st.session_state.welcome_done = False
+# --------- FILTER ENGINE ---------
+def generate_filters():
+    filters = []
+    for i in range(1000):
+        filters.append({
+            "name": f"WD {i:04d}",
+            "brightness": random.uniform(0.7,1.4),
+            "contrast": random.uniform(0.7,1.5),
+            "saturation": random.uniform(0.7,1.6),
+        })
+    return filters
 
-# ---------- UI ----------
-st.markdown("""
-<style>
-body {background:#000;color:white;}
-h1 {
-text-align:center;
-background:linear-gradient(90deg,#008080,#B4D8E7);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-}
-</style>
-""", unsafe_allow_html=True)
+FILTERS = generate_filters()
 
-st.markdown("<h1>WD PRO FF WORLD</h1>", unsafe_allow_html=True)
-st.write("📺 YouTube: wd_pro_ff | 📸 Instagram: wd_pro_ff")
+# --------- LANGUAGE LIST ---------
+LANGUAGES = [
+    "Hindi","English","Bengali","Tamil","Telugu",
+    "Spanish","French","German","Arabic","Urdu"
+]
 
-# ---------- LOGIN ----------
-if st.session_state.gender is None:
-    col1, col2 = st.columns(2)
+# --------- TEXT DRAW ---------
+def draw_text(frame, text, y_pos):
+    img = Image.fromarray(frame)
+    draw = ImageDraw.Draw(img)
 
-    if col1.button("👑 I AM KING"):
-        st.session_state.gender = "KING"
-        st.rerun()
+    try:
+        font = ImageFont.truetype("arial.ttf", 32)
+    except:
+        font = ImageFont.load_default()
 
-    if col2.button("👸 I AM QUEEN"):
-        st.session_state.gender = "QUEEN"
-        st.rerun()
+    draw.text((20, y_pos), text, fill=(255,255,255), font=font)
+    return np.array(img)
+    # --------- UI ---------
+st.title("WD PRO FF WORLD")
 
-    st.stop()
-
-# ---------- WELCOME ----------
-if not st.session_state.welcome_done:
-    st.markdown(f"### Welcome {st.session_state.gender} 👑")
-    time.sleep(2)
-    st.session_state.welcome_done = True
-    st.rerun()
-
-# ---------- SIDEBAR ----------
-st.sidebar.title("🐼 WD PRO PANDA")
-api_key = st.sidebar.text_input("Gemini API", type="password")
-
-# ---------- TABS ----------
-tabs = st.tabs([
-    "⬇️ DOWNLOADER",
-    "🎬 CAPTION",
-    "🚫 WATERMARK",
-    "✨ COLOR"
-])# ================= DOWNLOADER =================
-with tabs[0]:
-    link = st.text_input("Paste Link")
-
-    if st.button("Download"):
-        st.warning("Streamlit cloud pe downloader block hota hai.")
-        st.info("Local system pe run karo for full working.")
+tab1, tab2, tab3 = st.tabs([
+    "🎬 CAPTION PRO",
+    "🎨 COLOR PRO",
+    "⬇️ DOWNLOADER"
+])
 
 # ================= CAPTION =================
-with tabs[1]:
-    video1 = st.file_uploader(
+with tab1:
+    video = st.file_uploader(
         "Upload Video", type=["mp4"], key="cap"
     )
 
-    if st.button("Generate Caption"):
-        if video1:
+    lang = st.selectbox("Language", LANGUAGES)
+
+    style = st.selectbox("Style", [
+        "Word by Word","Full Sentence"
+    ])
+
+    if st.button("Generate Subtitle"):
+        if video:
             st.info("Processing...")
 
-            try:
-                import whisper
+            import whisper
+            model = whisper.load_model("tiny")
 
-                temp = tempfile.NamedTemporaryFile(delete=False)
-                temp.write(video1.read())
+            temp = tempfile.NamedTemporaryFile(delete=False)
+            temp.write(video.read())
 
-                model = whisper.load_model("tiny")
-                result = model.transcribe(temp.name)
+            result = model.transcribe(temp.name)
+            text = result["text"]
 
-                st.success("Done")
-                st.text(result["text"])
+            cap = cv2.VideoCapture(temp.name)
 
-            except Exception as e:
-                st.error(str(e))
+            w = int(cap.get(3))
+            h = int(cap.get(4))
+            fps = int(cap.get(5))
 
-# ================= WATERMARK =================
-with tabs[2]:
-    video2 = st.file_uploader(
-        "Upload Video", type=["mp4"], key="wm"
-    )
+            out_path = temp.name+"_sub.mp4"
+            fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+            out = cv2.VideoWriter(out_path,fourcc,fps,(w,h))
 
-    if st.button("Remove Watermark"):
-        if video2:
-            st.warning("Heavy processing cloud pe fail ho sakta hai.")
-            st.info("Local pe run karo for best result.")
+            words = text.split()
+
+            i = 0
+            while True:
+                ret, frame = cap.read()
+                if not ret:
+                    break
+
+                if style == "Word by Word":
+                    txt = words[i % len(words)]
+                else:
+                    txt = text
+
+                frame = draw_text(frame, txt, h-80)
+
+                out.write(frame)
+                i += 1
+
+            cap.release()
+            out.release()
+
+            with open(out_path,"rb") as f:
+                st.download_button("Download Video",f)
 
 # ================= COLOR =================
-with tabs[3]:
-    video3 = st.file_uploader(
+with tab2:
+    video2 = st.file_uploader(
         "Upload Video", type=["mp4"], key="color"
     )
 
-    brightness = st.slider("Brightness",0.5,2.0,1.0)
-    contrast = st.slider("Contrast",0.5,2.0,1.0)
+    filter_names = [f["name"] for f in FILTERS]
+    choice = st.selectbox("Select Filter", filter_names)
 
-    if st.button("Apply Color"):
-        if video3:
-            st.warning("Video processing cloud pe unstable hai.")
+    if st.button("Apply Filter"):
+        if video2:
+            st.info("Processing...")
+
+            fdata = next(f for f in FILTERS if f["name"] == choice)
+
+            cap = cv2.VideoCapture(
+                tempfile.NamedTemporaryFile(
+                    delete=False
+                ).name
+            )
+
+            temp = tempfile.NamedTemporaryFile(delete=False)
+            temp.write(video2.read())
+
+            cap = cv2.VideoCapture(temp.name)
+
+            w = int(cap.get(3))
+            h = int(cap.get(4))
+            fps = int(cap.get(5))
+
+            out_path = temp.name+"_color.mp4"
+            fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+            out = cv2.VideoWriter(out_path,fourcc,fps,(w,h))
+
+            while True:
+                ret, frame = cap.read()
+                if not ret:
+                    break
+
+                frame = cv2.convertScaleAbs(
+                    frame,
+                    alpha=fdata["contrast"],
+                    beta=0
+                )
+
+                hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+                hsv[:,:,1] = hsv[:,:,1] * fdata["saturation"]
+                frame = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
+
+                frame = np.clip(
+                    frame * fdata["brightness"],
+                    0,255
+                ).astype(np.uint8)
+
+                out.write(frame)
+
+            cap.release()
+            out.release()
+
+            with open(out_path,"rb") as f:
+                st.download_button("Download",f)
+
+# ================= DOWNLOADER =================
+with tab3:
+    link = st.text_input("Paste Link")
+
+    if st.button("Download"):
+        st.warning("Cloud pe YouTube/Instagram block hota hai")
+        st.info("Local system pe run karo for real download")
