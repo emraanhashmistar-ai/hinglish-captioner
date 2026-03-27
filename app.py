@@ -24,10 +24,12 @@ if st.session_state.gender is None:
     c1, c2, c3, c4 = st.columns([1, 2, 2, 1])
     with c2:
         if st.button("👑 I AM A KING (LADKA)", use_container_width=True):
-            st.session_state.gender = "King"; st.rerun()
+            st.session_state.gender = "King"
+            st.rerun()
     with c3:
         if st.button("👸 I AM A QUEEN (LADKI)", use_container_width=True):
-            st.session_state.gender = "Queen"; st.rerun()
+            st.session_state.gender = "Queen"
+            st.rerun()
     st.stop()
 
 if not st.session_state.anim_done:
@@ -49,7 +51,8 @@ if not st.session_state.anim_done:
         time.sleep(4.5)
     wp.empty()
     st.session_state.anim_done = True
-    css1 = "<style>.stApp{background:#000; color:#D3D3D3;} "
+
+css1 = "<style>.stApp{background:#000; color:#D3D3D3;} "
 css2 = ".wd-head{font-size:40px;font-weight:900;text-align:center;background:linear-gradient(90deg,#008080,#B4D8E7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;} "
 css3 = ".stButton>button{background:linear-gradient(135deg,#008080,#111);color:white;border:1px solid #008080;border-radius:10px;font-weight:bold;transition:0.3s;} "
 css4 = ".ai-card{background:#111;border:1px solid #008080;padding:15px;border-radius:10px;margin-bottom:15px;} "
@@ -71,17 +74,17 @@ AI_DB["Video"][0] = {"n":"RunwayML", "l":"https://runwayml.com", "d":"Best Cinem
 AI_DB["Video"][1] = {"n":"Sora", "l":"https://openai.com/sora", "d":"OpenAI's realistic video generator."}
 AI_DB["Image"][0] = {"n":"Midjourney", "l":"https://midjourney.com", "d":"Top quality photorealistic images."}
 
-FILTERS = {"001: Original": (1.0,1.0,1.0,0), "002: Hollywood Teal": (0.9,1.2,1.3,10)}
+FILTERS = {"WD 0001: Original": (1.0,1.0,1.0,0), "WD 0002: Hollywood Teal": (0.9,1.2,1.3,10)}
 for i in range(3, 1001):
     FILTERS["WD " + str(i).zfill(4) + ": Grade"] = (round(random.uniform(0.8,1.2),2), round(random.uniform(0.9,1.4),2), round(random.uniform(0.5,1.6),2), random.randint(-20,20))
-    with st.sidebar:
+
+with st.sidebar:
     st.markdown("<h2 style='text-align:center;color:#008080;'>🐼 WD PRO PANDA</h2><hr>", unsafe_allow_html=True)
-    st.markdown("<h3 style='color:#B4D8E7;text-align:center;'>🎁 DAILY SCRATCH CARD</h3>", unsafe_allow_html=True)
-    
     n_now = datetime.datetime.now()
     n_mid = datetime.datetime(n_now.year, n_now.month, n_now.day) + datetime.timedelta(days=1)
     diff = n_mid - n_now
-    hh, rr = divmod(diff.seconds, 3600); mm, ss = divmod(rr, 60)
+    hh, rr = divmod(diff.seconds, 3600)
+    mm, ss = divmod(rr, 60)
     
     if st.session_state.scratched_today:
         st.error("LOCKED 🔒 Come back tomorrow!")
@@ -103,6 +106,8 @@ for i in range(3, 1001):
                 
     st.divider()
     API_KEY = st.text_input("Gemini API Key", "AIzaSyC4axyeGWQfDHoDmK7D8WdFiQReUllm3Co", type="password")
+    @st.cache_resource
+def get_whisper(): return whisper.load_model("base")
 
 t1, t2, t3, t4, t5 = st.tabs(["⬇️ DL", "🎬 CAPTION", "🤖 AI", "🚫 WM", "✨ COLOR"])
 
@@ -110,18 +115,14 @@ with t1:
     st.subheader("⬇️ Universal Media Downloader")
     d_m = st.radio("Format:", ["Video", "Audio"], horizontal=True)
     d_u = st.text_input("Link (YT/Insta):")
-    if d_u and st.button("DOWNLOAD"):
+    if d_u and st.button("DOWNLOAD MEDIA"):
         import yt_dlp
         with tempfile.TemporaryDirectory() as td:
             st.markdown("<div class='stat'>⏳ Fetching Media...</div>", unsafe_allow_html=True)
             try:
-                opt = {'outtmpl': os.path.join(td, '%(title)s.%(ext)s'), 'quiet': True}
-                opt['http_headers'] = {'User-Agent': 'Mozilla/5.0'}
+                opt = {'outtmpl': os.path.join(td, '%(title)s.%(ext)s'), 'quiet': True, 'http_headers': {'User-Agent': 'Mozilla/5.0'}}
                 if 'Video' in d_m: opt['format'] = 'best[ext=mp4]/best'
-                else:
-                    opt['format'] = 'bestaudio/best'
-                    opt['postprocessors'] = [{'key':'FFmpegExtractAudio', 'preferredcodec':'mp3'}]
-                
+                else: opt['format'] = 'bestaudio/best'; opt['postprocessors'] = [{'key':'FFmpegExtractAudio', 'preferredcodec':'mp3'}]
                 with yt_dlp.YoutubeDL(opt) as y:
                     inf = y.extract_info(d_u, download=True)
                     fn = y.prepare_filename(inf)
@@ -132,50 +133,41 @@ with t1:
                         st.download_button(b_txt, f.read(), os.path.basename(fn))
             except Exception as e:
                 st.error("Download failed! IP is blocked or link is private.")
-                @st.cache_resource
-def get_whisper(): return whisper.load_model("base")
 
 with t2:
-    st.subheader("🎬 Master Caption Engine")
-    c_m = st.radio("Mode:", ["Original", "Translate"])
+    st.subheader("🎬 Master Captioner")
+    c_m = st.radio("Mode:", ["Original Audio", "Translate"])
     c_l = st.selectbox("Language:", LANGS)
     c1, c2, c3 = st.columns(3)
     c_spd = c1.selectbox("Speed:", ["1 Word", "2 Words", "Full Sentence"])
     c_sz = c2.slider("Size:", 30, 100, 70)
     c_pos = c3.selectbox("Pos:", ["Bottom", "Top"])
-    
+    c4, c5 = st.columns(2)
+    c_col = c4.color_picker("Text Color:", "#FFFFFF")
+    c_out = c5.color_picker("Outline Color:", "#008080")
     c_vid = st.file_uploader("Upload Video:", type=["mp4"])
     
     if c_vid and st.button("GENERATE ROMAN CAPTIONS"):
         with tempfile.TemporaryDirectory() as td:
-            ip = os.path.join(td, "i.mp4")
-            op = os.path.join(td, "o.mp4")
+            ip = os.path.join(td, "i.mp4"); op = os.path.join(td, "o.mp4")
             with open(ip, "wb") as f: f.write(c_vid.getbuffer())
             
             st.markdown("<div class='stat'>⏳ Extracting Audio...</div>", unsafe_allow_html=True)
             w_res = get_whisper().transcribe(ip)
             raw = "\\n".join([s['text'] for s in w_res['segments']])
-            
-            st.markdown("<div class='stat'>⏳ AI Scripting (Strict Roman Script)...</div>", unsafe_allow_html=True)
             genai.configure(api_key=API_KEY)
             
-            # SAFE PROMPT STRING CONCATENATION (NO LONG F-STRINGS)
-            p1 = "Translate to " + c_l + ". "
-            p2 = "CRITICAL: Use ONLY English alphabets (A-Z). NO Urdu/Hindi script. "
-            p3 = "Output ONLY a JSON array of strings. Text:\\n"
-            p_final = p1 + p2 + p3 + raw
+            p1 = "Translate to " + c_l + ". CRITICAL: Use ONLY English alphabets (A-Z). "
+            p2 = "NO Urdu/Hindi script. Output ONLY a JSON array of strings. Text:\\n"
+            prompt = p1 + p2 + raw
             
             try:
                 gm = genai.GenerativeModel('gemini-1.5-flash')
-                g_out = gm.generate_content(p_final).text.strip()
-                g_out = g_out.replace("```json", "").replace("```", "")
+                g_out = gm.generate_content(prompt).text.strip().replace("```json", "").replace("```", "")
                 if "[" in g_out: g_out = g_out[g_out.find("["):g_out.rfind("]")+1]
                 cln = json.loads(g_out)
-                for i, s in enumerate(w_res['segments']):
-                    s['f_txt'] = str(cln[i]) if i < len(cln) else s['text']
-                st.success("API Success! Roman Script ready.")
+                for i, s in enumerate(w_res['segments']): s['f_txt'] = str(cln[i]) if i < len(cln) else s['text']
             except Exception:
-                st.error("API Limit! Using original text.")
                 for s in w_res['segments']: s['f_txt'] = s['text']
             
             f_seg = []
@@ -186,41 +178,30 @@ with t2:
                 if wl == 999: f_seg.append({'s':s['start'], 'e':s['end'], 't':" ".join(wds)})
                 else:
                     d = (s['end'] - s['start'])/len(wds)
-                    for i in range(0, len(wds), wl):
-                        f_seg.append({'s':s['start']+(i*d), 'e':s['start']+((i+wl)*d), 't':" ".join(wds[i:i+wl])})
-                                    st.markdown("<div class='stat'>⏳ Rendering Video...</div>", unsafe_allow_html=True)
-            cap = cv2.VideoCapture(ip)
-            fps = cap.get(cv2.CAP_PROP_FPS)
-            vw = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-            vh = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-            wrt = cv2.VideoWriter(op+"_t.mp4", cv2.VideoWriter_fourcc(*"mp4v"), fps, (vw, vh))
+                    for i in range(0, len(wds), wl): f_seg.append({'s':s['start']+(i*d), 'e':s['start']+((i+wl)*d), 't':" ".join(wds[i:i+wl])})
             
+            st.markdown("<div class='stat'>⏳ Rendering Graphics...</div>", unsafe_allow_html=True)
+            cap = cv2.VideoCapture(ip)
+            fps = cap.get(cv2.CAP_PROP_FPS); vw = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)); vh = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            wrt = cv2.VideoWriter(op+"_t.mp4", cv2.VideoWriter_fourcc(*"mp4v"), fps, (vw, vh))
             try: fnt = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", c_sz)
             except: fnt = ImageFont.load_default()
+            f_id = 0; pb = st.progress(0)
             
-            f_id = 0
-            pb = st.progress(0)
             while True:
                 ret, frm = cap.read()
                 if not ret: break
                 sec = f_id / fps; txt = ""
                 for s in f_seg:
                     if s['s'] <= sec <= s['e']: txt = s['t']; break
-                
                 if txt:
-                    frgb = cv2.cvtColor(frm, cv2.COLOR_BGR2RGB)
-                    img = Image.fromarray(frgb)
-                    drw = ImageDraw.Draw(img)
-                    
+                    frgb = cv2.cvtColor(frm, cv2.COLOR_BGR2RGB); img = Image.fromarray(frgb); drw = ImageDraw.Draw(img)
                     wds = txt.split(); lns = []; c = []
                     for w in wds:
                         if fnt.getbbox(" ".join(c + [w]))[2] <= int(vw*0.85): c.append(w)
                         else: lns.append(" ".join(c)); c = [w]
                     if c: lns.append(" ".join(c))
-                    
-                    bh = len(lns) * (c_sz + 15)
-                    sy = vh - bh - 100 if "Bottom" in c_pos else 100
-                    
+                    sy = vh - (len(lns)*(c_sz+15)) - 100 if "Bottom" in c_pos else 100
                     for i, ln in enumerate(lns):
                         lx = (vw - fnt.getbbox(ln)[2]) // 2; ly = sy + (i * (c_sz + 15))
                         for ox in [-3,3]:
@@ -230,16 +211,13 @@ with t2:
                 wrt.write(frm); f_id += 1
                 if f_id % 15 == 0: pb.progress(min(f_id/int(cap.get(cv2.CAP_PROP_FRAME_COUNT)), 1.0))
             cap.release(); wrt.release()
-            
-            st.markdown("<div class='stat'>⏳ Finalizing Audio...</div>", unsafe_allow_html=True)
+            st.markdown("<div class='stat'>⏳ Merging Audio...</div>", unsafe_allow_html=True)
             try:
                 with VideoFileClip(ip) as o_vid:
-                    with VideoFileClip(op+"_t.mp4") as p_vid:
-                        p_vid.set_audio(o_vid.audio).write_videofile(op, codec="libx264", audio_codec="aac", logger=None)
+                    with VideoFileClip(op+"_t.mp4") as p_vid: p_vid.set_audio(o_vid.audio).write_videofile(op, codec="libx264", audio_codec="aac", logger=None)
                 st.success("✅ Done!")
                 with open(op, "rb") as f: st.download_button("📥 DOWNLOAD MP4", f.read(), "Caps.mp4")
-            except Exception:
-                st.error("Audio merge failed. Server needs ffmpeg.")
+            except Exception: st.error("Audio merge failed. Server needs ffmpeg.")
 
 with t3:
     st.subheader("🤖 2000+ AI Directory")
