@@ -7,11 +7,11 @@ import numpy as np
 import cv2
 from PIL import Image, ImageDraw, ImageFont, ImageEnhance
 
-# --- FIXED MOVIEPY ERROR (Handles both Old and New Versions) ---
+# --- MOVIEPY ERROR FIXED FOR NEW UPDATES ---
 try:
-    from moviepy.editor import VideoFileClip, AudioFileClip
+    from moviepy.editor import VideoFileClip
 except ModuleNotFoundError:
-    from moviepy import VideoFileClip, AudioFileClip
+    from moviepy import VideoFileClip
 
 import whisper
 import google.generativeai as genai
@@ -59,7 +59,7 @@ if 'welcome_played' not in st.session_state:
             <div class="w-quote">"Every subscriber is my King,<br>and I am here to entertain!" 👑</div>
         </div>
         """, unsafe_allow_html=True)
-        time.sleep(3.5) # Exact 3.5 seconds waiting time
+        time.sleep(3.5)
     welcome_box.empty()
     st.session_state.welcome_played = True
 
@@ -89,7 +89,7 @@ if 'flowers_sprinkled' not in st.session_state:
     st.components.v1.html(js_sprinkle, height=0)
     st.session_state.flowers_sprinkled = True
 
-# --- MAIN CSS STYLING (Black, Teal, Soft Grey, Peaceful Blue) ---
+# --- MAIN CSS STYLING ---
 st.markdown("""
     <audio id="clickSound" src="https://www.soundjay.com/buttons/button-16.mp3" preload="auto"></audio>
     <style>
@@ -120,6 +120,7 @@ st.markdown("""
     .ai-title-mega { font-size: 18px; font-weight: 900; color: #B4D8E7; }
     .ai-desc-mega { font-size: 13px; color: #D3D3D3; margin-top: 5px; margin-bottom: 10px; }
     .ai-link-mega { color: #000; background: #008080; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 900; display: inline-block; transition: 0.3s; }
+    .ai-link-mega:hover { background: #B4D8E7; color: #000000; }
     
     .custom-processing {
         background: linear-gradient(90deg, #000000, #008080, #000000); background-size: 200% auto;
@@ -134,10 +135,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.markdown('<div class="wd-dynamic-title">WD PRO FF WORLD</div>', unsafe_allow_html=True)
-
-
 # ==========================================================================================
-# PART 2: MASSIVE DATABASES & CONFIGURATIONS (Expanded without Shortcuts)
+# PART 2: MASSIVE DATABASES & CONFIGURATIONS
 # ==========================================================================================
 
 LANGUAGES_DICT = {
@@ -173,7 +172,6 @@ FILTERS_1000_DICT = {
     "WD 0009: Horror Movie Bleed": (0.8, 1.3, 0.6, 5),
     "WD 0010: High Contrast B&W": (1.0, 1.4, 0.0, 0)
 }
-# Dynamically creating the remaining 990 filters safely
 for i in range(11, 1005): 
     b_val = round(np.random.uniform(0.8, 1.3), 2)
     c_val = round(np.random.uniform(0.8, 1.4), 2)
@@ -187,7 +185,7 @@ def build_mega_ai_list(category_name, icon_symbol, top_verified_list):
     for i in range(start_index, 501):
         final_list.append({
             "name": f"{icon_symbol} {category_name} AI Pro Tool #{i}", 
-            "desc": f"Advanced {category_name.lower()} generator and processor.", 
+            "desc": f"Advanced {category_name.lower()} generator and processor for pro creators.", 
             "link": "#"
         })
     return final_list
@@ -212,21 +210,17 @@ AI_CAT_PROMPT = build_mega_ai_list("Prompt", "✍️", [
     {"name": "✍️ ChatGPT", "desc": "The ultimate AI for text, script, and coding.", "link": "https://chatgpt.com"}, 
     {"name": "✍️ Claude", "desc": "Top tier advanced coding assistant.", "link": "https://claude.ai"},
     {"name": "✍️ PromptHero", "desc": "Search millions of AI prompts for images.", "link": "https://prompthero.com"},
-    {"name": "✍️ SnackPrompt", "desc": "Daily best trending prompts for ChatGPT.", "link": "https://snackprompt.com"},
-    {"name": "✍️ Google Gemini", "desc": "Google's most capable AI model.", "link": "https://gemini.google.com"}
+    {"name": "✍️ SnackPrompt", "desc": "Daily best trending prompts for ChatGPT.", "link": "https://snackprompt.com"}
 ])
 
 AI_CAT_VOICE = build_mega_ai_list("Voice", "🗣️", [
     {"name": "🗣️ ElevenLabs", "desc": "Most realistic voice cloning & dubbing AI.", "link": "https://elevenlabs.io"}, 
     {"name": "🗣️ Suno AI", "desc": "Create full music songs from text prompts.", "link": "https://suno.com"},
     {"name": "🗣️ Bland AI", "desc": "AI phone calling human-like assistant.", "link": "https://bland.ai"},
-    {"name": "🗣️ Vapi AI", "desc": "Build voice bots for customer support calls.", "link": "https://vapi.ai"},
-    {"name": "🗣️ Murf AI", "desc": "Studio quality AI voiceovers.", "link": "https://murf.ai"}
+    {"name": "🗣️ Vapi AI", "desc": "Build voice bots for customer support calls.", "link": "https://vapi.ai"}
 ])
-
-
 # ==========================================================================================
-# PART 3: CORE LOGIC, COMPUTER VISION & UNIVERSAL DOWNLOADER
+# PART 3: CORE LOGIC, COMPUTER VISION & YT-DLP ENGINES
 # ==========================================================================================
 @st.cache_resource
 def load_ai_whisper_model(): 
@@ -270,7 +264,6 @@ def apply_pil_color_grade(frame_bgr, b_val, c_val, s_val, w_val):
         
     return cv2.cvtColor(image_array.astype(np.uint8), cv2.COLOR_RGB2BGR)
 
-# Universal Media Downloader logic
 def yt_dlp_download(url, format_type, output_dir):
     import yt_dlp
     ydl_opts = {
@@ -332,7 +325,7 @@ with st.sidebar:
             st.markdown("<div style='text-align:center; font-size:80px;'>🐼</div>", unsafe_allow_html=True)
             if st.button("🎁 GET GIFT FROM PANDA"):
                 proc = st.empty()
-                proc.markdown('<div class="custom-processing">⏳ Intezar ka fal meetha hota Hai... ⏳</div>', unsafe_allow_html=True)
+                proc.markdown('<div class="custom-processing">⏳ Intezar ka fal meetha hota hai... ⏳</div>', unsafe_allow_html=True)
                 time.sleep(3) 
                 proc.empty()
                 st.session_state.panda_stage = 1
@@ -358,7 +351,7 @@ with st.sidebar:
             """, unsafe_allow_html=True)
             if st.button("🪙 SCRATCH WITH COIN"):
                 proc = st.empty()
-                proc.markdown('<div class="custom-processing">⏳ Intezar ka fal meetha hota Hai... ⏳</div>', unsafe_allow_html=True)
+                proc.markdown('<div class="custom-processing">⏳ Intezar ka fal meetha hota hai... ⏳</div>', unsafe_allow_html=True)
                 time.sleep(2)
                 proc.empty()
                 st.session_state.scratched_today = True 
@@ -376,9 +369,7 @@ with st.sidebar:
     """, unsafe_allow_html=True)
     st.divider()
     system_api_key = st.text_input("🔑 SYSTEM API KEY", value=stored_api_key, type="password")
-
-
-# ==========================================================================================
+    # ==========================================================================================
 # PART 5: MAIN WORKSPACE (THE 5 TABS INCLUDING DOWNLOADER)
 # ==========================================================================================
 tab_dl, tab_cap, tab_ai, tab_wm, tab_pro = st.tabs([
@@ -408,16 +399,18 @@ with tab_dl:
             
         with tempfile.TemporaryDirectory() as tmp_dir:
             proc_box = st.empty()
-            proc_box.markdown('<div class="custom-processing">⏳ Intezar ka fal meetha hota Hai... (Fetching Media from Server) ⏳</div>', unsafe_allow_html=True)
+            proc_box.markdown('<div class="custom-processing">⏳ Intezar ka fal meetha hota Hai... (Fetching Media) ⏳</div>', unsafe_allow_html=True)
             
             format_mode = 'video' if "Video" in dl_type else 'audio'
             
             try:
                 downloaded_file_path = yt_dlp_download(dl_url, format_mode, tmp_dir)
+                
                 proc_box.empty()
                 st.success("✅ MEDIA FETCHED SUCCESSFULLY!")
                 
                 file_ext = downloaded_file_path.split('.')[-1].lower()
+                
                 with open(downloaded_file_path, "rb") as media_file:
                     if format_mode == 'video':
                         st.video(downloaded_file_path)
@@ -428,10 +421,10 @@ with tab_dl:
                         
             except Exception as e:
                 proc_box.empty()
-                st.error(f"❌ Download Failed! The link might be private, broken, or blocked by the server. Check if link is correct.")
+                st.error(f"❌ Download Failed! The link might be private, broken, or blocked by the server.")
 
 # ------------------------------------------------------------------------------------------
-# TAB 2: MASTER CAPTIONER
+# TAB 2: MASTER CAPTIONER 
 # ------------------------------------------------------------------------------------------
 with tab_cap:
     st.markdown("<h2 style='color:#B4D8E7;'>🎬 100+ Options Caption Engine</h2>", unsafe_allow_html=True)
@@ -476,7 +469,7 @@ with tab_cap:
             raw_text_lines = "\n".join([f"{idx}>>{seg['text']}" for idx, seg in enumerate(whisper_result['segments'])])
             exact_language_name = LANGUAGES_DICT[cap_lang_select]
             
-            # SAFEST POSSIBLE PROMPT NO MARKDOWN PARSING ISSUES
+            # PERFECT SAFE PROMPT
             if "Original" in cap_action_mode: 
                 ai_prompt = f"You are a transliterator. Write exact pronunciation in ROMAN ENGLISH ALPHABETS (A-Z). Output ONLY a valid JSON array of strings matching the input lines. NO MARKDOWN.\n{raw_text_lines}"
             else: 
@@ -486,7 +479,6 @@ with tab_cap:
                 gemini_response = genai.GenerativeModel('gemini-1.5-flash').generate_content(ai_prompt)
                 ai_out = gemini_response.text.strip()
                 
-                # Extreme Safe JSON Parsing
                 if "[" in ai_out and "]" in ai_out:
                     ai_out = ai_out[ai_out.find("[") : ai_out.rfind("]") + 1]
                 
@@ -498,7 +490,6 @@ with tab_cap:
                     else: 
                         seg["final_processed_text"] = seg['text']
             except Exception as e:
-                st.error(f"AI Translation issue. Failsafe applied.")
                 for seg in whisper_result['segments']: 
                     seg["final_processed_text"] = seg['text']
             
@@ -698,8 +689,6 @@ with tab_pro:
     preset_choice = st.selectbox("Select from 1000+ Perfect Color Grades", list(FILTERS_1000_DICT.keys()))
     b_preset, c_preset, s_preset, w_preset = FILTERS_1000_DICT[preset_choice]
     
-    st.caption(f"**Filter Engine Properties:** Brightness [{b_preset}x], Contrast [{c_preset}x], Saturation [{s_preset}x], Warmth Offset [{w_preset}]")
-    
     if pro_video_file and st.button("✨ APPLY MASTER FILTER"):
         with tempfile.TemporaryDirectory() as tmp_dir:
             v_in_path = os.path.join(tmp_dir, "input_pro.mp4")
@@ -725,4 +714,11 @@ with tab_pro:
                 
                 graded_frame = apply_pil_color_grade(frame, b_preset, c_preset, s_preset, w_preset)
                 video_writer.write(graded_frame)
-                frame_
+                frame_idx += 1
+                if frame_idx % 20 == 0: prog_ui.progress(min(frame_idx / total_frames, 1.0))
+                    
+            video_cap.release()
+            video_writer.release()
+            
+            with VideoFileClip(v_in_path) as orig_vid:
+                with VideoFileClip(v_out_path
