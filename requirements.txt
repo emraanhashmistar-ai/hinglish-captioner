@@ -1,9 +1,8 @@
 streamlit
-moviepy==1.0.3
-decorator==4.4.2
-openai-whisper
-google-generativeai
+moviepy
 opencv-python-headless
 Pillow
+google-generativeai
+openai-whisper
+yt-dlp
 numpy
-gTTS
