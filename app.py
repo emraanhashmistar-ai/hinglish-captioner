@@ -2,39 +2,160 @@ import streamlit as st
 import tempfile
 import os
 import json
-import time
-import datetime
+import re
+import numpy as np
 import cv2
+from PIL import Image, ImageDraw, ImageFont, ImageEnhance
 import math
-from PIL import Image, ImageDraw
+import time
+import random
+import datetime
+
+try:
+    from moviepy.editor import VideoFileClip
+except Exception:
+    from moviepy import VideoFileClip
+
 import whisper
 import google.generativeai as genai
-from moviepy.editor import VideoFileClip
 
-# Import from our custom modules
-from data_config import *
-from video_engine import *
-
-st.set_page_config(page_title="WD PRO FF WORLD", page_icon="🐼", layout="wide", initial_sidebar_state="expanded")
-
-# --- UI & CSS (String concat to prevent mobile crash) ---
-welcome_css = "<style>.w-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; width: 100vw; background-color: #000000; position: fixed; top: 0; left: 0; z-index: 999999; } .w-title { color: #008080; font-size: clamp(35px, 10vw, 70px); font-weight: 900; letter-spacing: 3px; text-shadow: 0 0 20px #008080; animation: pulse 1.5s infinite alternate; text-align: center; margin: 0; padding: 0 10px; } .w-quote { color: #B4D8E7; font-size: clamp(18px, 5vw, 30px); text-align: center; margin-top: 20px; text-shadow: 0 0 10px #B4D8E7; font-style: italic; line-height: 1.4; animation: slideUp 2s ease-out forwards; padding: 0 15px; } @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.05); filter: brightness(1.2); } } @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }</style>"
-welcome_html = "<div class='w-container'><div class='w-title'>WD PRO FF</div><div class='w-quote'>\"Every subscriber is my King,<br>and I am here to entertain!\" 👑</div></div>"
+st.set_page_config(
+    page_title="WD PRO FF WORLD", 
+    page_icon="🐼", 
+    layout="wide", 
+    initial_sidebar_state="expanded"
+)
 
 if 'welcome_played' not in st.session_state:
     welcome_box = st.empty()
     with welcome_box.container():
-        st.markdown(welcome_css + welcome_html, unsafe_allow_html=True)
+        c1 = "<style>.w-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; width: 100vw; background-color: #000000; position: fixed; top: 0; left: 0; z-index: 999999; } "
+        c2 = ".w-title { color: #008080; font-size: clamp(35px, 10vw, 70px); font-weight: 900; letter-spacing: 3px; text-shadow: 0 0 20px #008080; animation: pulse 1.5s infinite alternate; text-align: center; margin: 0; padding: 0 10px; } "
+        c3 = ".w-quote { color: #B4D8E7; font-size: clamp(18px, 5vw, 30px); text-align: center; margin-top: 20px; text-shadow: 0 0 10px #B4D8E7; font-style: italic; line-height: 1.4; animation: slideUp 2s ease-out forwards; padding: 0 15px; } "
+        c4 = "@keyframes pulse { from { transform: scale(1); } to { transform: scale(1.05); filter: brightness(1.2); } } "
+        c5 = "@keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }</style>"
+        h1 = "<div class='w-container'><div class='w-title'>WD PRO FF</div><div class='w-quote'>Every subscriber is my King,<br>and I am here to entertain! 👑</div></div>"
+        st.markdown(c1 + c2 + c3 + c4 + c5 + h1, unsafe_allow_html=True)
         time.sleep(3.5)
     welcome_box.empty()
     st.session_state.welcome_played = True
 
-main_css = "<audio id='clickSound' src='https://www.soundjay.com/buttons/button-16.mp3' preload='auto'></audio><style>.stApp { background-color: #000000; color: #D3D3D3; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; } .wd-dynamic-title { font-size: clamp(30px, 8vw, 55px); font-weight: 900; letter-spacing: 3px; text-transform: uppercase; text-align: center; margin-top: 10px; margin-bottom: 25px; background: linear-gradient(90deg, #008080, #B4D8E7, #008080); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: titleGlowMove 4s infinite cubic-bezier(0.68, -0.55, 0.27, 1.55); text-shadow: 0px 5px 15px rgba(0, 128, 128, 0.3); } @keyframes titleGlowMove { 0%, 100% { transform: translateY(0) scale(1); filter: brightness(1); } 50% { transform: translateY(-5px) scale(1.02); filter: brightness(1.2); } } .stButton>button { background: linear-gradient(135deg, #000000, #111111); color: #008080; border: 2px solid #008080; border-radius: 12px; height: 3.5rem; width: 100%; font-size: 15px; font-weight: 900; text-transform: uppercase; transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(0, 128, 128, 0.2); } .stButton>button:hover { background: linear-gradient(135deg, #008080, #B4D8E7); color: #000000; border-color: #B4D8E7; transform: translateY(-3px); box-shadow: 0 8px 20px rgba(180, 216, 231, 0.5); } .stTabs [data-baseweb='tab-list'] { background: rgba(17, 17, 17, 0.9); padding: 10px; border-radius: 12px; border: 1px solid #008080; } .stTabs [data-baseweb='tab'] { height: 45px; background: transparent; border-radius: 8px; color: #D3D3D3; font-weight: 900; font-size: 14px; padding: 0 15px; transition: 0.3s; } .stTabs [aria-selected='true'] { background: linear-gradient(135deg, #008080, #B4D8E7) !important; color: #000000 !important; } .ai-card-mega { background: #111111; border: 1px solid #008080; border-radius: 12px; padding: 15px; margin-bottom: 15px; transition: 0.4s; } .ai-card-mega:hover { transform: scale(1.02); box-shadow: 0 0 15px rgba(0, 128, 128, 0.4); } .ai-title-mega { font-size: 18px; font-weight: 900; color: #B4D8E7; } .ai-desc-mega { font-size: 13px; color: #D3D3D3; margin-top: 5px; margin-bottom: 10px; } .ai-link-mega { color: #000; background: #008080; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 900; display: inline-block; transition: 0.3s; } .ai-link-mega:hover { background: #B4D8E7; color: #000000; } .custom-processing { background: linear-gradient(90deg, #000000, #008080, #000000); background-size: 200% auto; color: #B4D8E7; padding: 12px; border-radius: 10px; text-align: center; font-size: 16px; font-weight: bold; animation: gradientPulse 2s infinite linear, bounceScale 1.5s infinite alternate; border: 2px solid #B4D8E7; box-shadow: 0 0 15px #008080; margin-top: 15px; margin-bottom: 15px; } @keyframes gradientPulse { 0% { background-position: 0% center; } 100% { background-position: 200% center; } } @keyframes bounceScale { 0% { transform: scale(1); } 100% { transform: scale(1.02); } }</style><script> document.addEventListener('click', function(e) { if (e.target.tagName === 'BUTTON' || e.target.closest('button')) document.getElementById('clickSound').play(); }); </script>"
-st.markdown(main_css, unsafe_allow_html=True)
-st.markdown("<div class='wd-dynamic-title'>WD PRO FF WORLD</div>", unsafe_allow_html=True)
+if 'flowers_sprinkled' not in st.session_state:
+    j1 = "<script>const flowers = ['🌹', '🌻', '🌼', '🌸', '🌺', '🌷', '✨', '🎊']; "
+    j2 = "for(let i=0; i<80; i++) { let f = document.createElement('div'); f.innerText = flowers[Math.floor(Math.random() * flowers.length)]; "
+    j3 = "f.style.position = 'fixed'; f.style.top = '-60px'; f.style.zIndex = '9999'; f.style.left = Math.random() * 100 + 'vw'; f.style.fontSize = (Math.random() * 20 + 15) + 'px'; "
+    j4 = "f.style.opacity = Math.random() * 0.6 + 0.4; let d = Math.random() * 4 + 2; f.style.animation = 'fallDown ' + d + 's linear forwards'; document.body.appendChild(f); setTimeout(() => f.remove(), d * 1000); } "
+    j5 = "const style = document.createElement('style'); style.innerHTML = '@keyframes fallDown { to { transform: translateY(110vh) rotate(360deg); opacity: 0; } }'; document.head.appendChild(style);</script>"
+    st.components.v1.html(j1 + j2 + j3 + j4 + j5, height=0)
+    st.session_state.flowers_sprinkled = True
 
-# --- SIDEBAR PANDA CARD ---
+m1 = "<style>.stApp { background-color: #000000; color: #D3D3D3; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; } "
+m2 = ".wd-dynamic-title { font-size: clamp(30px, 8vw, 55px); font-weight: 900; letter-spacing: 3px; text-transform: uppercase; text-align: center; margin-top: 10px; margin-bottom: 25px; background: linear-gradient(90deg, #008080, #B4D8E7, #008080); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: tGM 4s infinite cubic-bezier(0.68, -0.55, 0.27, 1.55); text-shadow: 0px 5px 15px rgba(0, 128, 128, 0.3); } "
+m3 = "@keyframes tGM { 0%, 100% { transform: translateY(0) scale(1); filter: brightness(1); } 50% { transform: translateY(-5px) scale(1.02); filter: brightness(1.2); } } "
+m4 = ".stButton>button { background: linear-gradient(135deg, #000000, #111111); color: #008080; border: 2px solid #008080; border-radius: 12px; height: 3.5rem; width: 100%; font-size: 15px; font-weight: 900; text-transform: uppercase; transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(0, 128, 128, 0.2); } "
+m5 = ".stButton>button:hover { background: linear-gradient(135deg, #008080, #B4D8E7); color: #000000; border-color: #B4D8E7; transform: translateY(-3px); box-shadow: 0 8px 20px rgba(180, 216, 231, 0.5); } "
+m6 = ".stTabs [data-baseweb='tab-list'] { background: rgba(17, 17, 17, 0.9); padding: 10px; border-radius: 12px; border: 1px solid #008080; } .stTabs [data-baseweb='tab'] { height: 45px; background: transparent; border-radius: 8px; color: #D3D3D3; font-weight: 900; font-size: 14px; padding: 0 15px; transition: 0.3s; } "
+m7 = ".stTabs [aria-selected='true'] { background: linear-gradient(135deg, #008080, #B4D8E7) !important; color: #000000 !important; } "
+m8 = ".ai-card-mega { background: #111111; border: 1px solid #008080; border-radius: 12px; padding: 15px; margin-bottom: 15px; transition: 0.4s; } .ai-card-mega:hover { transform: scale(1.02); box-shadow: 0 0 15px rgba(0, 128, 128, 0.4); } .ai-title-mega { font-size: 18px; font-weight: 900; color: #B4D8E7; } .ai-desc-mega { font-size: 13px; color: #D3D3D3; margin-top: 5px; margin-bottom: 10px; } "
+m9 = ".ai-link-mega { color: #000; background: #008080; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 900; display: inline-block; transition: 0.3s; } .ai-link-mega:hover { background: #B4D8E7; color: #000000; } "
+m10 = ".custom-processing { background: linear-gradient(90deg, #000000, #008080, #000000); background-size: 200% auto; color: #B4D8E7; padding: 12px; border-radius: 10px; text-align: center; font-size: 16px; font-weight: bold; animation: gP 2s infinite linear, bS 1.5s infinite alternate; border: 2px solid #B4D8E7; box-shadow: 0 0 15px #008080; margin-top: 15px; margin-bottom: 15px; } "
+m11 = "@keyframes gP { 0% { background-position: 0% center; } 100% { background-position: 200% center; } } @keyframes bS { 0% { transform: scale(1); } 100% { transform: scale(1.02); } }</style>"
+st.markdown(m1 + m2 + m3 + m4 + m5 + m6 + m7 + m8 + m9 + m10 + m11, unsafe_allow_html=True)
+st.markdown("<div class='wd-dynamic-title'>WD PRO FF WORLD</div>", unsafe_allow_html=True)
+LANGUAGES_DICT = {
+    'English': 'English', 'Hindi': 'Hindi', 'Urdu': 'Urdu', 'Bengali': 'Bengali', 'Punjabi': 'Punjabi', 
+    'Marathi': 'Marathi', 'Gujarati': 'Gujarati', 'Tamil': 'Tamil', 'Telugu': 'Telugu', 'Kannada': 'Kannada', 
+    'Malayalam': 'Malayalam', 'Odia': 'Odia', 'Assamese': 'Assamese', 'Maithili': 'Maithili', 'Santali': 'Santali',
+    'Kashmiri': 'Kashmiri', 'Nepali': 'Nepali', 'Sindhi': 'Sindhi', 'Dogri': 'Dogri', 'Konkani': 'Konkani',
+    'Spanish': 'Spanish', 'French': 'French', 'German': 'German', 'Italian': 'Italian', 'Portuguese': 'Portuguese', 
+    'Russian': 'Russian', 'Japanese': 'Japanese', 'Korean': 'Korean', 'Chinese (Mandarin)': 'Chinese', 'Arabic': 'Arabic', 
+    'Turkish': 'Turkish', 'Vietnamese': 'Vietnamese', 'Thai': 'Thai', 'Dutch': 'Dutch'
+}
+for i in range(35, 101): 
+    LANGUAGES_DICT["Global Dialect " + str(i)] = "English"
+
+FONTS_LIST = ["WD Cinema Font " + str(i) for i in range(1, 101)]
+ANIMATIONS_LIST = ["WD Pro Animation " + str(i) for i in range(1, 101)]
+OUTLINES_LIST = ["WD Neon Outline " + str(i) for i in range(1, 101)]
+DESIGN_LIST = ["WD Text Design " + str(i) for i in range(1, 101)]
+WORD_SPEEDS = ["1 Word (Fast Viral)", "2 Words (Standard)", "3 Words", "4 Words", "5 Words", "10 Words", "15 Words", "Show Full Sentence"]
+
+FILTERS_1000_DICT = {
+    "WD 0001: Perfect Natural (Raw)": (1.0, 1.0, 1.0, 0), "WD 0002: Hollywood Teal/Orange": (0.95, 1.15, 1.25, 5),
+    "WD 0003: Peaceful Blue Pop": (1.1, 1.1, 1.3, -10), "WD 0004: Soft Grey Cinema": (0.9, 1.0, 0.5, 0),
+    "WD 0005: Black & Teal Matrix": (0.9, 1.2, 1.1, -15), "WD 0006: Warm Golden Sunset": (1.05, 1.05, 1.2, 25),
+}
+for i in range(7, 1005): 
+    FILTERS_1000_DICT["WD " + str(i).zfill(4) + ": Studio Grade"] = (round(np.random.uniform(0.8, 1.3), 2), round(np.random.uniform(0.8, 1.4), 2), round(np.random.uniform(0.5, 1.8), 2), int(np.random.uniform(-40, 40)))
+
+def build_mega_ai_list(category_name, icon_symbol, top_verified_list):
+    final_list = top_verified_list.copy()
+    for i in range(len(top_verified_list) + 1, 501):
+        final_list.append({"name": icon_symbol + " " + category_name + " AI Pro Tool " + str(i), "desc": "Advanced " + category_name.lower() + " generator.", "link": "#"})
+    return final_list
+
+AI_CAT_VIDEO = build_mega_ai_list("Video", "🎥", [{"name": "🎥 RunwayML", "desc": "Best text-to-video AI.", "link": "https://runwayml.com"}, {"name": "🎥 Sora", "desc": "Realistic video creator.", "link": "https://openai.com/sora"}])
+AI_CAT_IMAGE = build_mega_ai_list("Image", "🖼️", [{"name": "🖼️ Midjourney", "desc": "Highest quality image gen.", "link": "https://midjourney.com"}, {"name": "🖼️ Leonardo AI", "desc": "Free game asset gen.", "link": "https://leonardo.ai"}])
+AI_CAT_PROMPT = build_mega_ai_list("Prompt", "✍️", [{"name": "✍️ ChatGPT", "desc": "Ultimate AI for text.", "link": "https://chatgpt.com"}, {"name": "✍️ Claude", "desc": "Advanced coding assistant.", "link": "https://claude.ai"}])
+AI_CAT_VOICE = build_mega_ai_list("Voice", "🗣️", [{"name": "🗣️ ElevenLabs", "desc": "Realistic voice cloning.", "link": "https://elevenlabs.io"}, {"name": "🗣️ Suno AI", "desc": "Create full music songs.", "link": "https://suno.com"}])
+
+@st.cache_resource
+def load_ai_whisper_model(): 
+    return whisper.load_model("base")
+
+def get_safe_font_engine(size):
+    try: 
+        return ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", size)
+    except Exception: 
+        return ImageFont.load_default()
+
+def advanced_text_wrap(text_string, font_engine, max_allowed_width):
+    word_list = text_string.split()
+    final_lines = []
+    current_line = []
+    for word in word_list:
+        test_line = " ".join(current_line + [word])
+        if font_engine.getbbox(test_line)[2] <= max_allowed_width: 
+            current_line.append(word)
+        else:
+            if current_line: 
+                final_lines.append(" ".join(current_line))
+            current_line = [word]
+    if current_line: 
+        final_lines.append(" ".join(current_line))
+    return final_lines
+
+def apply_pil_color_grade(frame_bgr, b_val, c_val, s_val, w_val):
+    pil_img = Image.fromarray(cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB))
+    if b_val != 1.0: pil_img = ImageEnhance.Brightness(pil_img).enhance(b_val)
+    if c_val != 1.0: pil_img = ImageEnhance.Contrast(pil_img).enhance(c_val)
+    if s_val != 1.0: pil_img = ImageEnhance.Color(pil_img).enhance(s_val)
+    image_array = np.array(pil_img).astype(np.int16)
+    if w_val != 0:
+        r = np.clip(image_array[:,:,0] + w_val, 0, 255)
+        b = np.clip(image_array[:,:,2] - w_val, 0, 255)
+        image_array = np.stack((r, image_array[:,:,1], b), axis=-1)
+    return cv2.cvtColor(image_array.astype(np.uint8), cv2.COLOR_RGB2BGR)
+
+def yt_dlp_download(url, format_type, output_dir):
+    import yt_dlp
+    ydl_opts = {'outtmpl': os.path.join(output_dir, '%(title)s.%(ext)s'), 'quiet': True, 'no_warnings': True}
+    if format_type == 'video': 
+        ydl_opts['format'] = 'best[ext=mp4]/best'
+    else:
+        ydl_opts['format'] = 'bestaudio/best'
+        ydl_opts['postprocessors'] = [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'mp3', 'preferredquality': '320'}]
+    
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=True)
+        filename = ydl.prepare_filename(info)
+        if format_type == 'audio': filename = filename.rsplit('.', 1)[0] + '.mp3'
+        return filename
+        # ==========================================================================================
+# PART 3: SIDEBAR & SCRATCH CARD
+# ==========================================================================================
 stored_api_key = st.secrets.get("GEMINI_API_KEY", "AIzaSyC4axyeGWQfDHoDmK7D8WdFiQReUllm3Co")
+
 with st.sidebar:
     st.markdown("<h1 style='text-align:center; color:#008080; font-weight:900;'>WD PRO FF</h1>", unsafe_allow_html=True)
     st.divider()
@@ -73,15 +194,17 @@ with st.sidebar:
     st.divider()
     system_api_key = st.text_input("🔑 SYSTEM API KEY", value=stored_api_key, type="password")
 
-# --- TABS ---
-tab_dl, tab_cap, tab_ai, tab_wm, tab_pro = st.tabs(["⬇️ UNIVERSAL DOWNLOADER", "🎬 MASTER CAPTIONER", "🤖 2000+ AI DIRECTORY", "🚫 WATERMARK REMOVER", "✨ COLOR GRADES"])
+tab_dl, tab_cap, tab_ai, tab_wm, tab_pro = st.tabs([
+    "⬇️ UNIVERSAL DOWNLOADER", "🎬 MASTER CAPTIONER", "🤖 2000+ AI DIRECTORY", "🚫 WATERMARK REMOVER", "✨ COLOR GRADES"
+])
 
 with tab_dl:
     st.markdown("<h2 style='color:#B4D8E7;'>⬇️ Universal Media Downloader</h2>", unsafe_allow_html=True)
     dl_type = st.radio("Select Format to Download:", ["🎥 High Quality Video (MP4)", "🎵 High Quality Audio (MP3)"], horizontal=True)
     dl_url = st.text_input("🔗 Paste Link Here (YouTube, Instagram, Spotify, etc.)")
-    
     if dl_url and st.button("⬇️ START DOWNLOAD PROCESS"):
+        try: import yt_dlp
+        except ImportError: st.error("❌ 'yt-dlp' library is missing in requirements.txt!"); st.stop()
         with tempfile.TemporaryDirectory() as tmp_dir:
             proc_box = st.empty(); proc_box.markdown("<div class='custom-processing'>⏳ Intezar ka fal meetha hota Hai... (Fetching Media) ⏳</div>", unsafe_allow_html=True)
             format_mode = 'video' if "Video" in dl_type else 'audio'
@@ -95,7 +218,19 @@ with tab_dl:
             except Exception as e:
                 proc_box.empty(); st.error("❌ Download Failed! Link might be private or blocked.")
 
-with tab_cap:
+with tab_ai:
+    st.markdown("<h2 style='color:#B4D8E7;'>🤖 Global AI Mega-Directory</h2>", unsafe_allow_html=True)
+    sec_vid, sec_img, sec_prm, sec_voc = st.tabs(["🎥 Video AI", "🖼️ Image AI", "✍️ Prompts AI", "🗣️ Voice AI"])
+    def render_mega_ai_list(ai_list):
+        for i in range(0, 50, 2): 
+            c1, c2 = st.columns(2)
+            with c1: st.markdown("<div class='ai-card-mega'><div class='ai-title-mega'>" + ai_list[i]['name'] + "</div><div class='ai-desc-mega'>" + ai_list[i]['desc'] + "</div><a href='" + ai_list[i]['link'] + "' target='_blank' class='ai-link-mega'>Open Website ↗</a></div>", unsafe_allow_html=True)
+            with c2: st.markdown("<div class='ai-card-mega'><div class='ai-title-mega'>" + ai_list[i+1]['name'] + "</div><div class='ai-desc-mega'>" + ai_list[i+1]['desc'] + "</div><a href='" + ai_list[i+1]['link'] + "' target='_blank' class='ai-link-mega'>Open Website ↗</a></div>", unsafe_allow_html=True)
+    with sec_vid: render_mega_ai_list(AI_CAT_VIDEO)
+    with sec_img: render_mega_ai_list(AI_CAT_IMAGE)
+    with sec_prm: render_mega_ai_list(AI_CAT_PROMPT)
+    with sec_voc: render_mega_ai_list(AI_CAT_VOICE)
+        with tab_cap:
     st.markdown("<h2 style='color:#B4D8E7;'>🎬 100+ Options Caption Engine</h2>", unsafe_allow_html=True)
     row_top_1, row_top_2 = st.columns(2)
     with row_top_1: cap_action_mode = st.radio("Translation Mode:", ["Keep Original Caption ✅", "Translate to New Language 🌍"])
@@ -125,28 +260,37 @@ with tab_cap:
             with open(video_input_path, "wb") as file: file.write(c_video_file.getbuffer())
             
             process_box = st.empty(); process_box.markdown("<div class='custom-processing'>⏳ Intezar ka fal meetha hota Hai... (Extracting Audio) ⏳</div>", unsafe_allow_html=True)
-            import whisper
-            model = whisper.load_model("base")
-            whisper_result = model.transcribe(video_input_path)
+            whisper_result = load_ai_whisper_model().transcribe(video_input_path)
                 
             process_box.markdown("<div class='custom-processing'>⏳ Intezar ka fal meetha hota Hai... (AI Scripting) ⏳</div>", unsafe_allow_html=True)
             genai.configure(api_key=system_api_key)
             raw_text_lines = "\\n".join([str(idx) + ">>" + seg['text'] for idx, seg in enumerate(whisper_result['segments'])])
             exact_language_name = LANGUAGES_DICT[cap_lang_select]
             
-            # URDU BUG KILLER COMMAND
-            ai_prompt = "You are a translator. Translate the following lines into " + exact_language_name + ". CRITICAL RULE: YOU MUST USE ENGLISH/LATIN ALPHABETS ONLY (Like Hinglish). DO NOT use Arabic, Urdu, or Hindi scripts. Output ONLY a valid JSON array of strings. Example: [\"line 1\", \"line 2\"].\\nLines:\\n" + raw_text_lines
+            # --- 100% SAFE PROMPT STRUCTURE TO AVOID SYNTAX ERRORS ---
+            p1 = "Convert these lines strictly to ROMAN ENGLISH ALPHABETS (Hinglish/English). "
+            p2 = "Output ONLY a valid JSON array of strings. Do not add markdown or json block. "
+            p3 = "Example: [\"line 1\", \"line 2\"]\\nLines:\\n"
+            
+            t1 = "Translate strictly into exactly " + str(exact_language_name) + ". "
+            t2 = "Output ONLY a valid JSON array of strings. Do not add markdown or json block. "
+            t3 = "Example: [\"line 1\", \"line 2\"]\\nLines:\\n"
+            
+            if "Original" in cap_action_mode: 
+                ai_prompt = p1 + p2 + p3 + str(raw_text_lines)
+            else: 
+                ai_prompt = t1 + t2 + t3 + str(raw_text_lines)
             
             try:
                 gemini_response = genai.GenerativeModel('gemini-1.5-flash').generate_content(ai_prompt)
                 ai_out = gemini_response.text.strip()
-                if "                if ai_out.startswith("json"): ai_out = ai_out[4:]
-                clean_list_data = json.loads(ai_out.strip())
+                if "
+                                if "[" in ai_out and "]" in ai_out: ai_out = ai_out[ai_out.find("[") : ai_out.rfind("]") + 1]
+                clean_list_data = json.loads(ai_out)
                 for idx, seg in enumerate(whisper_result['segments']): 
                     if idx < len(clean_list_data): seg["final_processed_text"] = str(clean_list_data[idx])
                     else: seg["final_processed_text"] = seg['text']
-            except Exception as e:
-                st.error("AI Warning: " + str(e)[:50] + " Failsafe activated.")
+            except Exception:
                 for seg in whisper_result['segments']: seg["final_processed_text"] = seg['text']
             
             final_render_segments = []
@@ -208,20 +352,6 @@ with tab_cap:
                 with VideoFileClip(video_output_path + "_temp.mp4") as processed_vid: final_clip = processed_vid.set_audio(original_vid.audio); final_clip.write_videofile(video_output_path, codec="libx264", audio_codec="aac", logger=None)
             process_box.empty(); st.success("✅ MASTER CAPTIONS READY!"); st.video(video_output_path)
             with open(video_output_path, "rb") as out_file: st.download_button("📥 DOWNLOAD VIDEO", out_file, "wdpro_captioned.mp4")
-
-with tab_ai:
-    st.markdown("<h2 style='color:#B4D8E7;'>🤖 Global AI Mega-Directory</h2>", unsafe_allow_html=True)
-    sec_vid, sec_img, sec_prm, sec_voc = st.tabs(["🎥 Video AI", "🖼️ Image AI", "✍️ Prompts AI", "🗣️ Voice AI"])
-    def render_mega_ai_list(ai_list):
-        for i in range(0, 50, 2): 
-            c1, c2 = st.columns(2)
-            with c1: st.markdown("<div class='ai-card-mega'><div class='ai-title-mega'>" + ai_list[i]['name'] + "</div><div class='ai-desc-mega'>" + ai_list[i]['desc'] + "</div><a href='" + ai_list[i]['link'] + "' target='_blank' class='ai-link-mega'>Open Website ↗</a></div>", unsafe_allow_html=True)
-            with c2: st.markdown("<div class='ai-card-mega'><div class='ai-title-mega'>" + ai_list[i+1]['name'] + "</div><div class='ai-desc-mega'>" + ai_list[i+1]['desc'] + "</div><a href='" + ai_list[i+1]['link'] + "' target='_blank' class='ai-link-mega'>Open Website ↗</a></div>", unsafe_allow_html=True)
-        st.info("Scroll down to load the remaining exclusive tools...")
-    with sec_vid: render_mega_ai_list(AI_CAT_VIDEO)
-    with sec_img: render_mega_ai_list(AI_CAT_IMAGE)
-    with sec_prm: render_mega_ai_list(AI_CAT_PROMPT)
-    with sec_voc: render_mega_ai_list(AI_CAT_VOICE)
 
 with tab_wm:
     st.markdown("<h2 style='color:#B4D8E7;'>🚫 Precision Watermark Eraser</h2>", unsafe_allow_html=True)
