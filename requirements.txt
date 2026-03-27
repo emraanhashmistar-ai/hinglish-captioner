@@ -1,7 +1,5 @@
 streamlit
-openai-whisper
 opencv-python
-pillow
 numpy
-yt-dlp
-google-generativeai
+pillow
+openai-whisper
