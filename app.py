@@ -120,6 +120,7 @@ st.markdown("""
     .ai-title-mega { font-size: 18px; font-weight: 900; color: #B4D8E7; }
     .ai-desc-mega { font-size: 13px; color: #D3D3D3; margin-top: 5px; margin-bottom: 10px; }
     .ai-link-mega { color: #000; background: #008080; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 900; display: inline-block; transition: 0.3s; }
+    .ai-link-mega:hover { background: #B4D8E7; color: #000000; }
     
     .custom-processing {
         background: linear-gradient(90deg, #000000, #008080, #000000); background-size: 200% auto;
@@ -267,7 +268,6 @@ def apply_pil_color_grade(frame_bgr, b_val, c_val, s_val, w_val):
         
     return cv2.cvtColor(image_array.astype(np.uint8), cv2.COLOR_RGB2BGR)
 
-# Universal Media Downloader logic
 def yt_dlp_download(url, format_type, output_dir):
     import yt_dlp
     ydl_opts = {
@@ -364,4 +364,4 @@ with st.sidebar:
     st.divider()
     st.markdown("<h3 style='color:#B4D8E7; text-align:center;'>🌐 OFFICIAL CHANNELS</h3>", unsafe_allow_html=True)
     st.markdown("""
-    <div style="background:#111111; padding:12px; border-radius:12px; border:1px solid #008080; text-align:center; margin-bottom:12px;
+    <div style="background:#111111; padding:12px; border-radius:12px; border:1px solid #008080; text-ali
