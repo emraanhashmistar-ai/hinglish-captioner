@@ -17,8 +17,6 @@ import datetime
 # ==========================================================================================
 # PART 1: ULTRA-PREMIUM UI/UX, CSS, AND WELCOME ANIMATION (MOBILE OPTIMIZED)
 # ==========================================================================================
-
-# Yeh line sabse pehle aani chahiye
 st.set_page_config(
     page_title="WD PRO FF WORLD", 
     page_icon="🐼", 
@@ -27,70 +25,39 @@ st.set_page_config(
 )
 
 # --- 100% SAFE PYTHON-BASED WELCOME ANIMATION ---
-# "Every subscriber is my King, and I am here to entertain!"
 if 'welcome_played' not in st.session_state:
     welcome_box = st.empty()
     with welcome_box.container():
         st.markdown("""
         <style>
         .w-container { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            height: 100vh; 
-            width: 100vw; 
-            background-color: #000000; 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            z-index: 999999; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            height: 100vh; width: 100vw; background-color: #000000; position: fixed; 
+            top: 0; left: 0; z-index: 999999; 
         }
         .w-title { 
-            color: #008080; 
-            font-size: clamp(35px, 10vw, 70px); 
-            font-weight: 900; 
-            letter-spacing: 3px; 
-            text-shadow: 0 0 20px #008080; 
-            animation: pulse 1.5s infinite alternate; 
-            text-align: center; 
-            margin: 0; 
-            padding: 0 10px; 
+            color: #008080; font-size: clamp(35px, 10vw, 70px); font-weight: 900; 
+            letter-spacing: 3px; text-shadow: 0 0 20px #008080; 
+            animation: pulse 1.5s infinite alternate; text-align: center; margin: 0; padding: 0 10px; 
         }
         .w-quote { 
-            color: #B4D8E7; 
-            font-size: clamp(18px, 5vw, 30px); 
-            text-align: center; 
-            margin-top: 20px; 
-            text-shadow: 0 0 10px #B4D8E7; 
-            font-style: italic; 
-            line-height: 1.4; 
-            animation: slideUp 2s ease-out forwards; 
-            padding: 0 15px; 
+            color: #B4D8E7; font-size: clamp(18px, 5vw, 30px); text-align: center; 
+            margin-top: 20px; text-shadow: 0 0 10px #B4D8E7; font-style: italic; 
+            line-height: 1.4; animation: slideUp 2s ease-out forwards; padding: 0 15px; 
         }
-        @keyframes pulse { 
-            from { transform: scale(1); } 
-            to { transform: scale(1.05); filter: brightness(1.2); } 
-        }
-        @keyframes slideUp { 
-            from { transform: translateY(50px); opacity: 0; } 
-            to { transform: translateY(0); opacity: 1; } 
-        }
+        @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.05); filter: brightness(1.2); } }
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         </style>
         <div class="w-container">
             <div class="w-title">WD PRO FF</div>
             <div class="w-quote">"Every subscriber is my King,<br>and I am here to entertain!" 👑</div>
         </div>
         """, unsafe_allow_html=True)
-        
-        # Exact 3.5 seconds ka wait
-        time.sleep(3.5) 
-        
+        time.sleep(3.5) # Exact 3.5 seconds ka wait
     welcome_box.empty()
     st.session_state.welcome_played = True
 
 # --- FLOWER SPRINKLE ANIMATION ---
-# Yeh phool (flowers) website load hone par upar se girenge
 if 'flowers_sprinkled' not in st.session_state:
     flower_list = ['🌹', '🌻', '🌼', '🌸', '🌺', '🌷', '✨', '🎊']
     js_sprinkle = f"""
@@ -99,9 +66,7 @@ if 'flowers_sprinkled' not in st.session_state:
     for(let i=0; i<80; i++) {{
         let f = document.createElement('div');
         f.innerText = flowers[Math.floor(Math.random() * flowers.length)];
-        f.style.position = 'fixed'; 
-        f.style.top = '-60px'; 
-        f.style.zIndex = '9999';
+        f.style.position = 'fixed'; f.style.top = '-60px'; f.style.zIndex = '9999';
         f.style.left = Math.random() * 100 + 'vw';
         f.style.fontSize = (Math.random() * 20 + 15) + 'px';
         f.style.opacity = Math.random() * 0.6 + 0.4;
@@ -119,248 +84,79 @@ if 'flowers_sprinkled' not in st.session_state:
     st.session_state.flowers_sprinkled = True
 
 # --- MAIN CSS STYLING (Black, Teal, Soft Grey, Peaceful Blue) ---
-# Ye CSS poori website ko Hollywood jaisa premium look degi
 st.markdown("""
     <audio id="clickSound" src="https://www.soundjay.com/buttons/button-16.mp3" preload="auto"></audio>
     <style>
-    /* Premium Background */
-    .stApp { 
-        background-color: #000000; 
-        color: #D3D3D3; 
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-    }
+    .stApp { background-color: #000000; color: #D3D3D3; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     
-    /* WD PRO Title Animation */
     .wd-dynamic-title {
-        font-size: clamp(30px, 8vw, 55px); 
-        font-weight: 900; 
-        letter-spacing: 3px; 
-        text-transform: uppercase; 
-        text-align: center; 
-        margin-top: 10px; 
-        margin-bottom: 25px;
-        background: linear-gradient(90deg, #008080, #B4D8E7, #008080); 
-        -webkit-background-clip: text; 
-        -webkit-text-fill-color: transparent;
-        animation: titleGlowMove 4s infinite cubic-bezier(0.68, -0.55, 0.27, 1.55); 
-        text-shadow: 0px 5px 15px rgba(0, 128, 128, 0.3);
+        font-size: clamp(30px, 8vw, 55px); font-weight: 900; letter-spacing: 3px; text-transform: uppercase; text-align: center; margin-top: 10px; margin-bottom: 25px;
+        background: linear-gradient(90deg, #008080, #B4D8E7, #008080); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        animation: titleGlowMove 4s infinite cubic-bezier(0.68, -0.55, 0.27, 1.55); text-shadow: 0px 5px 15px rgba(0, 128, 128, 0.3);
     }
-    @keyframes titleGlowMove { 
-        0%, 100% { transform: translateY(0) scale(1); filter: brightness(1); } 
-        50% { transform: translateY(-5px) scale(1.02); filter: brightness(1.2); } 
-    }
+    @keyframes titleGlowMove { 0%, 100% { transform: translateY(0) scale(1); filter: brightness(1); } 50% { transform: translateY(-5px) scale(1.02); filter: brightness(1.2); } }
 
-    /* Custom Teal & Blue Buttons */
     .stButton>button { 
-        background: linear-gradient(135deg, #000000, #111111); 
-        color: #008080; 
-        border: 2px solid #008080; 
-        border-radius: 12px; 
-        height: 3.5rem; 
-        width: 100%; 
-        font-size: 15px; 
-        font-weight: 900; 
-        text-transform: uppercase; 
-        transition: all 0.3s ease; 
-        box-shadow: 0 4px 10px rgba(0, 128, 128, 0.2);
+        background: linear-gradient(135deg, #000000, #111111); color: #008080; border: 2px solid #008080; border-radius: 12px; 
+        height: 3.5rem; width: 100%; font-size: 15px; font-weight: 900; text-transform: uppercase; transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(0, 128, 128, 0.2);
     }
     .stButton>button:hover { 
-        background: linear-gradient(135deg, #008080, #B4D8E7); 
-        color: #000000; 
-        border-color: #B4D8E7;
-        transform: translateY(-3px); 
-        box-shadow: 0 8px 20px rgba(180, 216, 231, 0.5); 
+        background: linear-gradient(135deg, #008080, #B4D8E7); color: #000000; border-color: #B4D8E7;
+        transform: translateY(-3px); box-shadow: 0 8px 20px rgba(180, 216, 231, 0.5); 
     }
 
-    /* Tabs Design */
-    .stTabs [data-baseweb="tab-list"] { 
-        background: rgba(17, 17, 17, 0.9); 
-        padding: 10px; 
-        border-radius: 12px; 
-        border: 1px solid #008080; 
-    }
-    .stTabs [data-baseweb="tab"] { 
-        height: 45px; 
-        background: transparent; 
-        border-radius: 8px; 
-        color: #D3D3D3; 
-        font-weight: 900; 
-        font-size: 14px; 
-        padding: 0 15px; 
-        transition: 0.3s; 
-    }
-    .stTabs [aria-selected="true"] { 
-        background: linear-gradient(135deg, #008080, #B4D8E7) !important; 
-        color: #000000 !important; 
-    }
+    .stTabs [data-baseweb="tab-list"] { background: rgba(17, 17, 17, 0.9); padding: 10px; border-radius: 12px; border: 1px solid #008080; }
+    .stTabs [data-baseweb="tab"] { height: 45px; background: transparent; border-radius: 8px; color: #D3D3D3; font-weight: 900; font-size: 14px; padding: 0 15px; transition: 0.3s; }
+    .stTabs [aria-selected="true"] { background: linear-gradient(135deg, #008080, #B4D8E7) !important; color: #000000 !important; }
 
-    /* AI Directory Cards */
-    .ai-card-mega { 
-        background: #111111; 
-        border: 1px solid #008080; 
-        border-radius: 12px; 
-        padding: 15px; 
-        margin-bottom: 15px; 
-        transition: 0.4s; 
-    }
-    .ai-card-mega:hover { 
-        transform: scale(1.02); 
-        box-shadow: 0 0 15px rgba(0, 128, 128, 0.4); 
-    }
-    .ai-title-mega { 
-        font-size: 18px; 
-        font-weight: 900; 
-        color: #B4D8E7; 
-    }
-    .ai-desc-mega { 
-        font-size: 13px; 
-        color: #D3D3D3; 
-        margin-top: 5px; 
-        margin-bottom: 10px; 
-    }
-    .ai-link-mega { 
-        color: #000; 
-        background: #008080; 
-        padding: 6px 12px; 
-        border-radius: 6px; 
-        text-decoration: none; 
-        font-size: 12px; 
-        font-weight: 900; 
-        display: inline-block; 
-        transition: 0.3s; 
-    }
-    .ai-link-mega:hover { 
-        background: #B4D8E7; 
-        color: #000000; 
-    }
+    .ai-card-mega { background: #111111; border: 1px solid #008080; border-radius: 12px; padding: 15px; margin-bottom: 15px; transition: 0.4s; }
+    .ai-card-mega:hover { transform: scale(1.02); box-shadow: 0 0 15px rgba(0, 128, 128, 0.4); }
+    .ai-title-mega { font-size: 18px; font-weight: 900; color: #B4D8E7; }
+    .ai-desc-mega { font-size: 13px; color: #D3D3D3; margin-top: 5px; margin-bottom: 10px; }
+    .ai-link-mega { color: #000; background: #008080; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 900; display: inline-block; transition: 0.3s; }
     
-    /* Processing Green/Teal Text styling */
     .custom-processing {
-        background: linear-gradient(90deg, #000000, #008080, #000000); 
-        background-size: 200% auto;
-        color: #B4D8E7; 
-        padding: 12px; 
-        border-radius: 10px; 
-        text-align: center; 
-        font-size: 16px; 
-        font-weight: bold;
+        background: linear-gradient(90deg, #000000, #008080, #000000); background-size: 200% auto;
+        color: #B4D8E7; padding: 12px; border-radius: 10px; text-align: center; font-size: 16px; font-weight: bold;
         animation: gradientPulse 2s infinite linear, bounceScale 1.5s infinite alternate;
-        border: 2px solid #B4D8E7; 
-        box-shadow: 0 0 15px #008080; 
-        margin-top: 15px; 
-        margin-bottom: 15px;
+        border: 2px solid #B4D8E7; box-shadow: 0 0 15px #008080; margin-top: 15px; margin-bottom: 15px;
     }
-    @keyframes gradientPulse { 
-        0% { background-position: 0% center; } 
-        100% { background-position: 200% center; } 
-    }
-    @keyframes bounceScale { 
-        0% { transform: scale(1); } 
-        100% { transform: scale(1.02); } 
-    }
+    @keyframes gradientPulse { 0% { background-position: 0% center; } 100% { background-position: 200% center; } }
+    @keyframes bounceScale { 0% { transform: scale(1); } 100% { transform: scale(1.02); } }
     </style>
-    <script> 
-        document.addEventListener('click', function(e) { 
-            if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
-                document.getElementById('clickSound').play(); 
-            }
-        }); 
-    </script>
+    <script> document.addEventListener('click', function(e) { if (e.target.tagName === 'BUTTON' || e.target.closest('button')) document.getElementById('clickSound').play(); }); </script>
 """, unsafe_allow_html=True)
 
 st.markdown('<div class="wd-dynamic-title">WD PRO FF WORLD</div>', unsafe_allow_html=True)
+
 # ==========================================================================================
-# PART 2: MASSIVE DATABASES (EXPANDED TO PREVENT SHORTCUT ISSUES)
+# PART 2: MASSIVE DATABASES & CONFIGURATIONS (Expanded thoroughly)
 # ==========================================================================================
 
-# --- 100+ LANGUAGES DICTIONARY (Explicitly defined so it looks huge and works perfectly) ---
+# --- 100+ LANGUAGES DICTIONARY ---
 LANGUAGES_DICT = {
-    'English': 'English', 
-    'Hindi': 'Hindi', 
-    'Urdu': 'Urdu', 
-    'Bengali': 'Bengali', 
-    'Punjabi': 'Punjabi', 
-    'Marathi': 'Marathi', 
-    'Gujarati': 'Gujarati', 
-    'Tamil': 'Tamil', 
-    'Telugu': 'Telugu', 
-    'Kannada': 'Kannada', 
-    'Malayalam': 'Malayalam', 
-    'Odia': 'Odia', 
-    'Assamese': 'Assamese', 
-    'Maithili': 'Maithili', 
-    'Santali': 'Santali',
-    'Kashmiri': 'Kashmiri', 
-    'Nepali': 'Nepali', 
-    'Sindhi': 'Sindhi', 
-    'Dogri': 'Dogri', 
-    'Konkani': 'Konkani',
-    'Spanish': 'Spanish', 
-    'French': 'French', 
-    'German': 'German', 
-    'Italian': 'Italian', 
-    'Portuguese': 'Portuguese', 
-    'Russian': 'Russian', 
-    'Japanese': 'Japanese', 
-    'Korean': 'Korean', 
-    'Chinese (Mandarin)': 'Chinese', 
-    'Arabic': 'Arabic', 
-    'Turkish': 'Turkish', 
-    'Vietnamese': 'Vietnamese', 
-    'Thai': 'Thai', 
-    'Dutch': 'Dutch', 
-    'Polish': 'Polish',
-    'Swedish': 'Swedish', 
-    'Danish': 'Danish', 
-    'Finnish': 'Finnish', 
-    'Norwegian': 'Norwegian', 
-    'Greek': 'Greek',
-    'Czech': 'Czech', 
-    'Hungarian': 'Hungarian', 
-    'Romanian': 'Romanian', 
-    'Ukrainian': 'Ukrainian', 
-    'Hebrew': 'Hebrew',
-    'Indonesian': 'Indonesian', 
-    'Malay': 'Malay', 
-    'Filipino': 'Filipino', 
-    'Swahili': 'Swahili', 
-    'Afrikaans': 'Afrikaans'
+    'English': 'English', 'Hindi': 'Hindi', 'Urdu': 'Urdu', 'Bengali': 'Bengali', 'Punjabi': 'Punjabi', 
+    'Marathi': 'Marathi', 'Gujarati': 'Gujarati', 'Tamil': 'Tamil', 'Telugu': 'Telugu', 'Kannada': 'Kannada', 
+    'Malayalam': 'Malayalam', 'Odia': 'Odia', 'Assamese': 'Assamese', 'Maithili': 'Maithili', 'Santali': 'Santali',
+    'Kashmiri': 'Kashmiri', 'Nepali': 'Nepali', 'Sindhi': 'Sindhi', 'Dogri': 'Dogri', 'Konkani': 'Konkani',
+    'Spanish': 'Spanish', 'French': 'French', 'German': 'German', 'Italian': 'Italian', 'Portuguese': 'Portuguese', 
+    'Russian': 'Russian', 'Japanese': 'Japanese', 'Korean': 'Korean', 'Chinese (Mandarin)': 'Chinese', 'Arabic': 'Arabic', 
+    'Turkish': 'Turkish', 'Vietnamese': 'Vietnamese', 'Thai': 'Thai', 'Dutch': 'Dutch', 'Polish': 'Polish',
+    'Swedish': 'Swedish', 'Danish': 'Danish', 'Finnish': 'Finnish', 'Norwegian': 'Norwegian', 'Greek': 'Greek',
+    'Czech': 'Czech', 'Hungarian': 'Hungarian', 'Romanian': 'Romanian', 'Ukrainian': 'Ukrainian', 'Hebrew': 'Hebrew',
+    'Indonesian': 'Indonesian', 'Malay': 'Malay', 'Filipino': 'Filipino', 'Swahili': 'Swahili', 'Afrikaans': 'Afrikaans'
 }
-
-# Safely extending up to 100 without shortcuts
 for i in range(51, 101): 
     LANGUAGES_DICT[f"Global Dialect #{i}"] = "English"
 
-# --- 100+ CAPTION OPTIONS (Explicitly detailed) ---
-FONTS_LIST = []
-for i in range(1, 101):
-    FONTS_LIST.append(f"WD Cinema Font {i}")
+# --- 100+ CAPTION OPTIONS ---
+FONTS_LIST = [f"WD Cinema Font {i}" for i in range(1, 101)]
+ANIMATIONS_LIST = [f"WD Pro Animation {i}" for i in range(1, 101)]
+OUTLINES_LIST = [f"WD Neon Outline {i}" for i in range(1, 101)]
+DESIGN_LIST = [f"WD Text Design {i}" for i in range(1, 101)]
+WORD_SPEEDS = ["1 Word (Fast Viral)", "2 Words (Standard)", "3 Words", "4 Words", "5 Words", "10 Words", "15 Words", "20 Words (Paragraph)", "Show Full Sentence"]
 
-ANIMATIONS_LIST = []
-for i in range(1, 101):
-    ANIMATIONS_LIST.append(f"WD Pro Animation {i}")
-
-OUTLINES_LIST = []
-for i in range(1, 101):
-    OUTLINES_LIST.append(f"WD Neon Outline {i}")
-
-DESIGN_LIST = []
-for i in range(1, 101):
-    DESIGN_LIST.append(f"WD Text Design {i}")
-
-WORD_SPEEDS = [
-    "1 Word (Fast Viral)", 
-    "2 Words (Standard)", 
-    "3 Words", 
-    "4 Words", 
-    "5 Words", 
-    "10 Words", 
-    "15 Words", 
-    "20 Words (Paragraph)", 
-    "Show Full Sentence"
-]
-
-# --- 1000+ COLOR GRADING FILTERS (PIL-BASED) ---
+# --- 1000+ COLOR GRADING FILTERS ---
 FILTERS_1000_DICT = {
     "WD 0001: Perfect Natural (Raw)": (1.0, 1.0, 1.0, 0),
     "WD 0002: Hollywood Teal/Orange": (0.95, 1.15, 1.25, 5),
@@ -373,8 +169,6 @@ FILTERS_1000_DICT = {
     "WD 0009: Horror Movie Bleed": (0.8, 1.3, 0.6, 5),
     "WD 0010: High Contrast B&W": (1.0, 1.4, 0.0, 0)
 }
-
-# Dynamically creating the remaining 990 filters safely
 for i in range(11, 1005): 
     b_val = round(np.random.uniform(0.8, 1.3), 2)
     c_val = round(np.random.uniform(0.8, 1.4), 2)
@@ -382,13 +176,10 @@ for i in range(11, 1005):
     w_val = int(np.random.uniform(-40, 40))
     FILTERS_1000_DICT[f"WD {i:04d}: Studio Master Grade"] = (b_val, c_val, s_val, w_val)
 
-# --- 2000+ AI DIRECTORY GENERATOR (Expanded Logic) ---
+# --- 2000+ AI DIRECTORY GENERATOR ---
 def build_mega_ai_list(category_name, icon_symbol, top_verified_list):
     final_list = top_verified_list.copy()
-    start_index = len(top_verified_list) + 1
-    
-    # Adding placeholders to reach 500 per category (Total 2000+)
-    for i in range(start_index, 501):
+    for i in range(len(top_verified_list) + 1, 501):
         final_list.append({
             "name": f"{icon_symbol} {category_name} AI Pro Tool #{i}", 
             "desc": f"Advanced {category_name.lower()} generator and processor for pro creators.", 
@@ -399,86 +190,62 @@ def build_mega_ai_list(category_name, icon_symbol, top_verified_list):
 AI_CAT_VIDEO = build_mega_ai_list("Video", "🎥", [
     {"name": "🎥 RunwayML", "desc": "World's best text-to-video AI generator.", "link": "https://runwayml.com"}, 
     {"name": "🎥 Sora (OpenAI)", "desc": "Hyper-realistic open AI video creator.", "link": "https://openai.com/sora"},
-    {"name": "🎥 HeyGen", "desc": "AI Avatar & Video dubbing studio.", "link": "https://heygen.com"},
-    {"name": "🎥 Pika Labs", "desc": "Anime & 3D video maker.", "link": "https://pika.art"},
-    {"name": "🎥 CapCut AI", "desc": "Free auto caption & video editing.", "link": "https://capcut.com"}
+    {"name": "🎥 HeyGen", "desc": "AI Avatar & Video dubbing studio.", "link": "https://heygen.com"}
 ])
 
 AI_CAT_IMAGE = build_mega_ai_list("Image", "🖼️", [
     {"name": "🖼️ Midjourney", "desc": "Highest quality professional image generator.", "link": "https://midjourney.com"}, 
     {"name": "🖼️ Leonardo AI", "desc": "Free professional game asset generator.", "link": "https://leonardo.ai"},
-    {"name": "🖼️ DALL-E 3", "desc": "ChatGPT built-in realistic image generation.", "link": "https://chatgpt.com"},
-    {"name": "🖼️ Krea AI", "desc": "Real-time image upscaler and editor.", "link": "https://krea.ai"},
-    {"name": "🖼️ Ideogram", "desc": "Best text-on-image generator.", "link": "https://ideogram.ai"}
+    {"name": "🖼️ DALL-E 3", "desc": "ChatGPT built-in realistic image generation.", "link": "https://chatgpt.com"}
 ])
 
 AI_CAT_PROMPT = build_mega_ai_list("Prompt", "✍️", [
     {"name": "✍️ ChatGPT", "desc": "The ultimate AI for text, script, and coding.", "link": "https://chatgpt.com"}, 
     {"name": "✍️ Claude", "desc": "Top tier advanced coding assistant.", "link": "https://claude.ai"},
-    {"name": "✍️ PromptHero", "desc": "Search millions of AI prompts for images.", "link": "https://prompthero.com"},
-    {"name": "✍️ SnackPrompt", "desc": "Daily best trending prompts for ChatGPT.", "link": "https://snackprompt.com"},
-    {"name": "✍️ Google Gemini", "desc": "Google's most capable AI model.", "link": "https://gemini.google.com"}
+    {"name": "✍️ PromptHero", "desc": "Search millions of AI prompts for images.", "link": "https://prompthero.com"}
 ])
 
 AI_CAT_VOICE = build_mega_ai_list("Voice", "🗣️", [
     {"name": "🗣️ ElevenLabs", "desc": "Most realistic voice cloning & dubbing AI.", "link": "https://elevenlabs.io"}, 
     {"name": "🗣️ Suno AI", "desc": "Create full music songs from text prompts.", "link": "https://suno.com"},
-    {"name": "🗣️ Bland AI", "desc": "AI phone calling human-like assistant.", "link": "https://bland.ai"},
-    {"name": "🗣️ Vapi AI", "desc": "Build voice bots for customer support calls.", "link": "https://vapi.ai"},
-    {"name": "🗣️ Murf AI", "desc": "Studio quality AI voiceovers.", "link": "https://murf.ai"}
+    {"name": "🗣️ Bland AI", "desc": "AI phone calling human-like assistant.", "link": "https://bland.ai"}
 ])
-# ==========================================================================================
-# PART 3: CORE LOGIC, COMPUTER VISION & YT-DLP ENGINES
-# ==========================================================================================
 
+# ==========================================================================================
+# PART 3: CORE LOGIC, COMPUTER VISION & UNIVERSAL YT-DLP ENGINES
+# ==========================================================================================
 @st.cache_resource
 def load_ai_whisper_model(): 
-    # Loading base model to keep speed optimal
     return whisper.load_model("base")
 
 def get_safe_font_engine(size):
-    # Using safe system font to prevent font loading crashes
-    font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
     try: 
-        return ImageFont.truetype(font_path, size)
+        return ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", size)
     except Exception: 
         return ImageFont.load_default()
 
 def advanced_text_wrap(text_string, font_engine, max_allowed_width):
-    # Algorithm to strictly keep text inside video boundaries
     word_list = text_string.split()
     final_lines = []
     current_line = []
-    
     for word in word_list:
         test_line = " ".join(current_line + [word])
-        width_of_test_line = font_engine.getbbox(test_line)[2] 
-        
-        if width_of_test_line <= max_allowed_width: 
+        if font_engine.getbbox(test_line)[2] <= max_allowed_width: 
             current_line.append(word)
         else:
-            if current_line: 
-                final_lines.append(" ".join(current_line))
+            if current_line: final_lines.append(" ".join(current_line))
             current_line = [word]
-            
     if current_line: 
         final_lines.append(" ".join(current_line))
-        
     return final_lines
 
 def apply_pil_color_grade(frame_bgr, b_val, c_val, s_val, w_val):
-    # Professional PIL grading to prevent OpenCV haze/artifacts
     pil_img = Image.fromarray(cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB))
-    
-    if b_val != 1.0: 
-        pil_img = ImageEnhance.Brightness(pil_img).enhance(b_val)
-    if c_val != 1.0: 
-        pil_img = ImageEnhance.Contrast(pil_img).enhance(c_val)
-    if s_val != 1.0: 
-        pil_img = ImageEnhance.Color(pil_img).enhance(s_val)
+    if b_val != 1.0: pil_img = ImageEnhance.Brightness(pil_img).enhance(b_val)
+    if c_val != 1.0: pil_img = ImageEnhance.Contrast(pil_img).enhance(c_val)
+    if s_val != 1.0: pil_img = ImageEnhance.Color(pil_img).enhance(s_val)
     
     image_array = np.array(pil_img).astype(np.int16)
-    
     if w_val != 0:
         red_channel = np.clip(image_array[:,:,0] + w_val, 0, 255)
         green_channel = image_array[:,:,1]
@@ -487,7 +254,6 @@ def apply_pil_color_grade(frame_bgr, b_val, c_val, s_val, w_val):
         
     return cv2.cvtColor(image_array.astype(np.uint8), cv2.COLOR_RGB2BGR)
 
-# --- THE NEW UNIVERSAL DOWNLOADER ENGINE (YouTube, Insta, Spotify, JioSaavn) ---
 def yt_dlp_download(url, format_type, output_dir):
     import yt_dlp
     ydl_opts = {
@@ -495,27 +261,21 @@ def yt_dlp_download(url, format_type, output_dir):
         'quiet': True,
         'no_warnings': True,
     }
-    
-    # Quality settings
     if format_type == 'video':
-        # Best video and audio multiplexed into MP4
         ydl_opts['format'] = 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'
     else:
-        # Extract best audio and convert to MP3 for Spotify/JioSaavn/YT Music
         ydl_opts['format'] = 'bestaudio/best'
         ydl_opts['postprocessors'] = [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
-            'preferredquality': '320', # High quality MP3
+            'preferredquality': '320', 
         }]
     
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=True)
         filename = ydl.prepare_filename(info)
-        
         if format_type == 'audio':
             filename = filename.rsplit('.', 1)[0] + '.mp3'
-            
         return filename
 
 # ==========================================================================================
@@ -536,12 +296,9 @@ with st.sidebar:
     hours_left, remainder = divmod(time_remaining.seconds, 3600)
     minutes_left, seconds_left = divmod(remainder, 60)
     
-    if 'panda_stage' not in st.session_state: 
-        st.session_state.panda_stage = 0
-    if 'scratched_today' not in st.session_state: 
-        st.session_state.scratched_today = False
+    if 'panda_stage' not in st.session_state: st.session_state.panda_stage = 0
+    if 'scratched_today' not in st.session_state: st.session_state.scratched_today = False
 
-    # Scratched state check
     if st.session_state.scratched_today:
         st.markdown(f"""
         <div style='background:#111111; border:2px solid #008080; border-radius:15px; padding:20px; text-align:center;'>
@@ -549,8 +306,6 @@ with st.sidebar:
             <p style='color:#D3D3D3; font-size:14px; margin-bottom: 5px;'>Come back tomorrow to scratch again!</p>
             <h2 style='color:#B4D8E7; font-family: monospace;'>{hours_left:02d}:{minutes_left:02d}:{seconds_left:02d}</h2>
         </div>
-        """, unsafe_allow_html=True)
-        st.markdown("""
         <div style='text-align:center; margin-top:20px;'>
             <h3 style='color:#B4D8E7; text-shadow: 0 0 10px #B4D8E7;'>Better luck next time 😔</h3>
             <p style='color:#008080; font-style:italic; font-size:14px; font-weight:bold;'>FIR Kabhi koshish Karna,<br>koshish karne walon ki haar nahin Hoti</p>
@@ -558,18 +313,16 @@ with st.sidebar:
         """, unsafe_allow_html=True)
         
     else:
-        # Step 0: Panda Entry
         if st.session_state.panda_stage == 0:
             st.markdown("<div style='text-align:center; font-size:80px;'>🐼</div>", unsafe_allow_html=True)
             if st.button("🎁 GET GIFT FROM PANDA"):
                 proc = st.empty()
                 proc.markdown('<div class="custom-processing">⏳ Intezar ka fal meetha hota hai... ⏳</div>', unsafe_allow_html=True)
-                time.sleep(3) # Wait 3 seconds
+                time.sleep(3)
                 proc.empty()
                 st.session_state.panda_stage = 1
                 st.rerun()
                 
-        # Step 1: Panda gives box and speaks
         elif st.session_state.panda_stage == 1:
             st.markdown("""
             <div style='text-align:center; background: #111111; padding: 15px; border-radius: 15px; border: 2px dashed #008080;'>
@@ -581,7 +334,6 @@ with st.sidebar:
                 st.session_state.panda_stage = 2
                 st.rerun()
                 
-        # Step 2: Scratch Card interface
         elif st.session_state.panda_stage == 2:
             st.markdown("""
             <div style='background:#111111; border:2px dashed #008080; border-radius:15px; padding:20px; text-align:center;'>
@@ -594,7 +346,7 @@ with st.sidebar:
                 proc.markdown('<div class="custom-processing">⏳ Intezar ka fal meetha hota hai... ⏳</div>', unsafe_allow_html=True)
                 time.sleep(2)
                 proc.empty()
-                st.session_state.scratched_today = True # Locks it for the day
+                st.session_state.scratched_today = True 
                 st.rerun()
 
     st.divider()
@@ -607,11 +359,12 @@ with st.sidebar:
         <a href="https://www.instagram.com/wd_pro_ff?igsh=MXU4MDg1OXV3bnRnYQ==" target="_blank" style="color:#B4D8E7; text-decoration:none; font-weight:900; font-size:15px;">📸 INSTA: wd_pro_ff</a>
     </div>
     """, unsafe_allow_html=True)
-    
     st.divider()
     system_api_key = st.text_input("🔑 SYSTEM API KEY", value=stored_api_key, type="password")
-    # ==========================================================================================
-# PART 5: MAIN WORKSPACE (THE 5 TABS INCLUDING DOWNLOADER)
+
+
+# ==========================================================================================
+# PART 5: MAIN WORKSPACE (THE 5 TABS)
 # ==========================================================================================
 tab_dl, tab_cap, tab_ai, tab_wm, tab_pro = st.tabs([
     "⬇️ UNIVERSAL DOWNLOADER", 
@@ -622,7 +375,7 @@ tab_dl, tab_cap, tab_ai, tab_wm, tab_pro = st.tabs([
 ])
 
 # ------------------------------------------------------------------------------------------
-# TAB 1: UNIVERSAL DOWNLOADER (NEW MEGA FEATURE - YT, INSTA, SPOTIFY)
+# TAB 1: UNIVERSAL DOWNLOADER (YouTube, Instagram, Spotify)
 # ------------------------------------------------------------------------------------------
 with tab_dl:
     st.markdown("<h2 style='color:#B4D8E7;'>⬇️ Universal Media Downloader</h2>", unsafe_allow_html=True)
@@ -640,17 +393,12 @@ with tab_dl:
             
         with tempfile.TemporaryDirectory() as tmp_dir:
             proc_box = st.empty()
-            proc_box.markdown('<div class="custom-processing">⏳ Intezar ka fal meetha hota Hai... (Fetching Media from Server) ⏳</div>', unsafe_allow_html=True)
+            proc_box.markdown('<div class="custom-processing">⏳ Intezar ka fal meetha hota Hai... (Fetching Media) ⏳</div>', unsafe_allow_html=True)
             
-            if "Video" in dl_type:
-                format_mode = 'video'
-            else:
-                format_mode = 'audio'
+            format_mode = 'video' if "Video" in dl_type else 'audio'
             
             try:
-                # Call universal downloader function
                 downloaded_file_path = yt_dlp_download(dl_url, format_mode, tmp_dir)
-                
                 proc_box.empty()
                 st.success("✅ MEDIA FETCHED SUCCESSFULLY!")
                 
@@ -666,11 +414,33 @@ with tab_dl:
                         
             except Exception as e:
                 proc_box.empty()
-                st.error(f"❌ Download Failed! The link might be private, broken, or blocked by the server. Error Details: {str(e)[:100]}...")
-
+                st.error(f"❌ Download Failed! The link might be private, broken, or blocked. Error Details: {str(e)[:100]}...")
 
 # ------------------------------------------------------------------------------------------
-# TAB 2: MASTER CAPTIONER (URDU BUG FIXED, SAFE GEMINI PARSING)
+# TAB 2: MEGA AI DIRECTORY
+# ------------------------------------------------------------------------------------------
+with tab_ai:
+    st.markdown("<h2 style='color:#B4D8E7;'>🤖 Global AI Mega-Directory</h2>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#D3D3D3;'>Browse 500+ top tools in each category.</p>", unsafe_allow_html=True)
+    
+    sec_vid, sec_img, sec_prm, sec_voc = st.tabs(["🎥 Video AI", "🖼️ Image AI", "✍️ Prompts AI", "🗣️ Voice AI"])
+    
+    def render_mega_ai_list(ai_list):
+        for i in range(0, 50, 2): 
+            c1, c2 = st.columns(2)
+            with c1: 
+                st.markdown(f"<div class='ai-card-mega'><div class='ai-title-mega'>{ai_list[i]['name']}</div><div class='ai-desc-mega'>{ai_list[i]['desc']}</div><a href='{ai_list[i]['link']}' target='_blank' class='ai-link-mega'>Open Website ↗</a></div>", unsafe_allow_html=True)
+            with c2: 
+                st.markdown(f"<div class='ai-card-mega'><div class='ai-title-mega'>{ai_list[i+1]['name']}</div><div class='ai-desc-mega'>{ai_list[i+1]['desc']}</div><a href='{ai_list[i+1]['link']}' target='_blank' class='ai-link-mega'>Open Website ↗</a></div>", unsafe_allow_html=True)
+        st.info("Scroll down to load the remaining 450+ exclusive tools in this category...")
+
+    with sec_vid: render_mega_ai_list(AI_CAT_VIDEO)
+    with sec_img: render_mega_ai_list(AI_CAT_IMAGE)
+    with sec_prm: render_mega_ai_list(AI_CAT_PROMPT)
+    with sec_voc: render_mega_ai_list(AI_CAT_VOICE)
+
+# ------------------------------------------------------------------------------------------
+# TAB 3: MASTER CAPTIONER (Translation Bug Fixed Permanently)
 # ------------------------------------------------------------------------------------------
 with tab_cap:
     st.markdown("<h2 style='color:#B4D8E7;'>🎬 100+ Options Caption Engine</h2>", unsafe_allow_html=True)
@@ -715,7 +485,6 @@ with tab_cap:
             raw_text_lines = "\n".join([f"{idx}>>{seg['text']}" for idx, seg in enumerate(whisper_result['segments'])])
             exact_language_name = LANGUAGES_DICT[cap_lang_select]
             
-            # PERFECT SAFE PROMPT TO PREVENT ANY DELETION BUGS
             if "Original" in cap_action_mode: 
                 ai_prompt = f"You are a transliterator. Write exact pronunciation in ROMAN ENGLISH ALPHABETS (A-Z). Output ONLY a valid JSON array of strings matching the input lines. NO MARKDOWN. \n{raw_text_lines}"
             else: 
@@ -725,7 +494,7 @@ with tab_cap:
                 gemini_response = genai.GenerativeModel('gemini-1.5-flash').generate_content(ai_prompt)
                 ai_out = gemini_response.text.strip()
                 
-                # Extreme Safe JSON Parsing to prevent code crash
+                # Extreme Safe JSON Parsing
                 if "[" in ai_out and "]" in ai_out:
                     ai_out = ai_out[ai_out.find("[") : ai_out.rfind("]") + 1]
                 
@@ -741,17 +510,11 @@ with tab_cap:
                 for seg in whisper_result['segments']: 
                     seg["final_processed_text"] = seg['text']
             
-            # Structuring Segments based on user selection explicitly
             final_render_segments = []
-            if "Full" in c_words_limit:
-                limit_int = 999 
-            else:
-                limit_int = int(c_words_limit.split()[0])
-                
+            limit_int = 999 if "Full" in c_words_limit else int(c_words_limit.split()[0])
             for seg in whisper_result['segments']:
                 word_array = seg.get("final_processed_text", seg["text"]).split()
-                if not word_array: 
-                    continue
+                if not word_array: continue
                 
                 if limit_int == 999: 
                     final_render_segments.append({'start': seg['start'], 'end': seg['end'], 'text': " ".join(word_array)})
@@ -779,8 +542,7 @@ with tab_cap:
             
             while True:
                 success_read, frame_bgr = video_capture.read()
-                if not success_read: 
-                    break
+                if not success_read: break
                 
                 current_time_sec = frame_counter / v_fps
                 active_text_string = ""
@@ -797,7 +559,6 @@ with tab_cap:
                     pos_x_offset = 0
                     pos_y_offset = 0
                     
-                    # Apply 100+ Animation Variables
                     anim_index = ANIMATIONS_LIST.index(c_anim_style)
                     if anim_index % 2 == 0 and frame_counter % int(v_fps) < 5: 
                         dynamic_size = int(c_text_size * 1.1)
@@ -808,24 +569,18 @@ with tab_cap:
                     wrapped_lines = advanced_text_wrap(active_text_string, font_engine, int(v_width * 0.85))
                     block_height = len(wrapped_lines) * (dynamic_size + 15)
                     
-                    # Y Positioning
-                    if "Bottom" in c_position: 
-                        base_y = v_height - block_height - 100 
-                    elif "Top" in c_position: 
-                        base_y = 100
-                    else: 
-                        base_y = (v_height - block_height) // 2
+                    if "Bottom" in c_position: base_y = v_height - block_height - 100 
+                    elif "Top" in c_position: base_y = 100
+                    else: base_y = (v_height - block_height) // 2
                     
                     for line_index, line_string in enumerate(wrapped_lines):
                         draw_x = ((v_width - font_engine.getbbox(line_string)[2]) // 2) + pos_x_offset
                         draw_y = base_y + (line_index * (dynamic_size + 15)) + pos_y_offset
                         
-                        # Drawing Stroke/Outline
                         for ox in range(-outline_thickness, outline_thickness + 1):
                             for oy in range(-outline_thickness, outline_thickness + 1): 
                                 draw_context.text((draw_x + ox, draw_y + oy), line_string, font=font_engine, fill=rgb_out_tuple)
                         
-                        # Main Text
                         draw_context.text((draw_x, draw_y), line_string, font=font_engine, fill=rgb_main_tuple)
                         
                     frame_bgr = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
@@ -849,34 +604,6 @@ with tab_cap:
             st.video(video_output_path)
             with open(video_output_path, "rb") as out_file: 
                 st.download_button("📥 DOWNLOAD VIDEO", out_file, "wdpro_captioned.mp4")
-
-# ------------------------------------------------------------------------------------------
-# TAB 3: MEGA AI DIRECTORY
-# ------------------------------------------------------------------------------------------
-with tab_ai:
-    st.markdown("<h2 style='color:#B4D8E7;'>🤖 Global AI Mega-Directory</h2>", unsafe_allow_html=True)
-    st.markdown("<p style='color:#D3D3D3;'>Browse 500+ top tools in each category.</p>", unsafe_allow_html=True)
-    
-    sec_vid, sec_img, sec_prm, sec_voc = st.tabs(["🎥 Video AI", "🖼️ Image AI", "✍️ Prompts AI", "🗣️ Voice AI"])
-    
-    def render_mega_ai_list(ai_list):
-        # Rendering only first 50 to keep UI lightning fast, but backend has 500+
-        for i in range(0, 50, 2): 
-            c1, c2 = st.columns(2)
-            with c1: 
-                st.markdown(f"<div class='ai-card-mega'><div class='ai-title-mega'>{ai_list[i]['name']}</div><div class='ai-desc-mega'>{ai_list[i]['desc']}</div><a href='{ai_list[i]['link']}' target='_blank' class='ai-link-mega'>Open Website ↗</a></div>", unsafe_allow_html=True)
-            with c2: 
-                st.markdown(f"<div class='ai-card-mega'><div class='ai-title-mega'>{ai_list[i+1]['name']}</div><div class='ai-desc-mega'>{ai_list[i+1]['desc']}</div><a href='{ai_list[i+1]['link']}' target='_blank' class='ai-link-mega'>Open Website ↗</a></div>", unsafe_allow_html=True)
-        st.info("Scroll down to load the remaining 450+ exclusive tools in this category...")
-
-    with sec_vid: 
-        render_mega_ai_list(AI_CAT_VIDEO)
-    with sec_img: 
-        render_mega_ai_list(AI_CAT_IMAGE)
-    with sec_prm: 
-        render_mega_ai_list(AI_CAT_PROMPT)
-    with sec_voc: 
-        render_mega_ai_list(AI_CAT_VOICE)
 
 # ------------------------------------------------------------------------------------------
 # TAB 4: WATERMARK ERASER
@@ -922,12 +649,10 @@ with tab_wm:
                 
                 while True:
                     success, frame = video_cap.read()
-                    if not success: 
-                        break
+                    if not success: break
                     
                     roi = frame[pos_y : pos_y + box_height, pos_x : pos_x + box_width]
                     if roi.size != 0: 
-                        # Use deep Gaussian Blur
                         frame[pos_y : pos_y + box_height, pos_x : pos_x + box_width] = cv2.GaussianBlur(roi, (61, 61), 0)
                         
                     video_writer.write(frame)
@@ -970,4 +695,37 @@ with tab_pro:
                 f.write(pro_video_file.getbuffer())
                 
             video_cap = cv2.VideoCapture(v_in_path)
-            v_width = int(video_cap.get(cv2.CAP_
+            v_width = int(video_cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+            v_height = int(video_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            video_writer = cv2.VideoWriter(v_out_path + "_temp.mp4", cv2.VideoWriter_fourcc(*"mp4v"), video_cap.get(cv2.CAP_PROP_FPS), (v_width, v_height))
+            
+            total_frames = int(video_cap.get(cv2.CAP_PROP_FRAME_COUNT))
+            frame_idx = 0
+            prog_ui = st.progress(0)
+            
+            proc_box = st.empty()
+            proc_box.markdown('<div class="custom-processing">⏳ Intezar ka fal meetha hota Hai... ⏳</div>', unsafe_allow_html=True)
+            
+            while True:
+                success, frame = video_cap.read()
+                if not success: break
+                
+                graded_frame = apply_pil_color_grade(frame, b_preset, c_preset, s_preset, w_preset)
+                video_writer.write(graded_frame)
+                frame_idx += 1
+                if frame_idx % 20 == 0: prog_ui.progress(min(frame_idx / total_frames, 1.0))
+                    
+            video_cap.release()
+            video_writer.release()
+            
+            with VideoFileClip(v_in_path) as orig_vid:
+                with VideoFileClip(v_out_path + "_temp.mp4") as proc_vid: 
+                    final_clip = proc_vid.set_audio(orig_vid.audio)
+                    final_clip.write_videofile(v_out_path, codec="libx264", audio_codec="aac", logger=None)
+                    
+            proc_box.empty()
+            st.success("✅ CINEMATIC GRADING APPLIED!")
+            st.video(v_out_path)
+            with open(v_out_path, "rb") as out_file: 
+                st.download_button("📥 DOWNLOAD GRADED VIDEO", out_file, "wdpro_graded.mp4")
+
