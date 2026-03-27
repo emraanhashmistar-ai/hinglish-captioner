@@ -324,4 +324,4 @@ with tab2:
                     if s['s'] <= sec <= s['e']: txt = s['t']; break
                 
                 if txt:
-                    img = Image.fromarray(cv2.cvtColor(frame,
+                    frm_rgb = cv2.cvtColor(frame, cv2.COLOR_B
