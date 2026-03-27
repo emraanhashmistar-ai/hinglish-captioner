@@ -1,3 +1,4 @@
+streamlit
 moviepy
 opencv-python-headless
 Pillow
@@ -5,3 +6,5 @@ google-generativeai
 openai-whisper
 yt-dlp
 numpy
+
+Bhai, is baar sirf Copy ka button daba aur apni mehnat ka fal le. Tu jeet gaya! 👑🐼🔥
