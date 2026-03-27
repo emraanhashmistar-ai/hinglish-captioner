@@ -1,8 +1,8 @@
 streamlit
-moviepy==1.0.3
-opencv-python-headless
-Pillow
-google-generativeai
-openai-whisper
 yt-dlp
-numpy
+opencv-python
+pillow
+moviepy==1.0.3
+openai-whisper
+google-generativeai
+ffmpeg-python
