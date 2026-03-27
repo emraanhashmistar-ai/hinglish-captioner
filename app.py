@@ -6,6 +6,10 @@ import re
 import numpy as np
 import cv2
 from PIL import Image, ImageDraw, ImageFont, ImageEnhance
+import math
+import time
+import random
+import datetime
 
 # --- MOVIEPY ERROR FIXED ---
 try:
@@ -15,10 +19,6 @@ except ModuleNotFoundError:
 
 import whisper
 import google.generativeai as genai
-import math
-import time
-import random
-import datetime
 
 # ==========================================================================================
 # PART 1: ULTRA-PREMIUM UI/UX, CSS, AND WELCOME ANIMATION
@@ -28,7 +28,7 @@ st.set_page_config(page_title="WD PRO FF WORLD", page_icon="🐼", layout="wide"
 if 'welcome_played' not in st.session_state:
     welcome_box = st.empty()
     with welcome_box.container():
-        st.markdown('''
+        st.markdown("""
         <style>
         .w-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; width: 100vw; background-color: #000000; position: fixed; top: 0; left: 0; z-index: 999999; }
         .w-title { color: #008080; font-size: clamp(35px, 10vw, 70px); font-weight: 900; letter-spacing: 3px; text-shadow: 0 0 20px #008080; animation: pulse 1.5s infinite alternate; text-align: center; margin: 0; padding: 0 10px; }
@@ -37,14 +37,14 @@ if 'welcome_played' not in st.session_state:
         @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         </style>
         <div class="w-container"><div class="w-title">WD PRO FF</div><div class="w-quote">"Every subscriber is my King,<br>and I am here to entertain!" 👑</div></div>
-        ''', unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
         time.sleep(3.5)
     welcome_box.empty()
     st.session_state.welcome_played = True
 
 if 'flowers_sprinkled' not in st.session_state:
     flower_list = ['🌹', '🌻', '🌼', '🌸', '🌺', '🌷', '✨', '🎊']
-    js_sprinkle = f'''
+    js_sprinkle = f"""
     <script>
     const flowers = {flower_list};
     for(let i=0; i<80; i++) {{
@@ -58,11 +58,11 @@ if 'flowers_sprinkled' not in st.session_state:
     }}
     const style = document.createElement('style'); style.innerHTML = `@keyframes fallDown {{ to {{ transform: translateY(110vh) rotate(360deg); opacity: 0; }} }}`; document.head.appendChild(style);
     </script>
-    '''
+    """
     st.components.v1.html(js_sprinkle, height=0)
     st.session_state.flowers_sprinkled = True
 
-st.markdown('''
+st.markdown("""
     <audio id="clickSound" src="https://www.soundjay.com/buttons/button-16.mp3" preload="auto"></audio>
     <style>
     .stApp { background-color: #000000; color: #D3D3D3; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -84,13 +84,25 @@ st.markdown('''
     @keyframes bounceScale { 0% { transform: scale(1); } 100% { transform: scale(1.02); } }
     </style>
     <script> document.addEventListener('click', function(e) { if (e.target.tagName === 'BUTTON' || e.target.closest('button')) document.getElementById('clickSound').play(); }); </script>
-''', unsafe_allow_html=True)
+""", unsafe_allow_html=True)
+
 st.markdown('<div class="wd-dynamic-title">WD PRO FF WORLD</div>', unsafe_allow_html=True)
 # ==========================================================================================
-# PART 2: MASSIVE DATABASES
+# PART 2: MASSIVE DATABASES & CONFIGURATIONS
 # ==========================================================================================
-LANGUAGES_DICT = {'English': 'English', 'Hindi': 'Hindi', 'Urdu': 'Urdu', 'Bengali': 'Bengali', 'Punjabi': 'Punjabi', 'Marathi': 'Marathi', 'Gujarati': 'Gujarati', 'Tamil': 'Tamil', 'Telugu': 'Telugu', 'Kannada': 'Kannada', 'Malayalam': 'Malayalam', 'Spanish': 'Spanish', 'French': 'French', 'German': 'German', 'Italian': 'Italian', 'Portuguese': 'Portuguese', 'Russian': 'Russian', 'Japanese': 'Japanese', 'Korean': 'Korean', 'Chinese': 'Chinese', 'Arabic': 'Arabic', 'Turkish': 'Turkish', 'Vietnamese': 'Vietnamese', 'Thai': 'Thai', 'Dutch': 'Dutch'}
-for i in range(26, 101): LANGUAGES_DICT[f"Global Dialect #{i}"] = "English"
+LANGUAGES_DICT = {
+    'English': 'English', 'Hindi': 'Hindi', 'Urdu': 'Urdu', 'Bengali': 'Bengali', 'Punjabi': 'Punjabi', 
+    'Marathi': 'Marathi', 'Gujarati': 'Gujarati', 'Tamil': 'Tamil', 'Telugu': 'Telugu', 'Kannada': 'Kannada', 
+    'Malayalam': 'Malayalam', 'Odia': 'Odia', 'Assamese': 'Assamese', 'Maithili': 'Maithili', 'Santali': 'Santali',
+    'Kashmiri': 'Kashmiri', 'Nepali': 'Nepali', 'Sindhi': 'Sindhi', 'Dogri': 'Dogri', 'Konkani': 'Konkani',
+    'Spanish': 'Spanish', 'French': 'French', 'German': 'German', 'Italian': 'Italian', 'Portuguese': 'Portuguese', 
+    'Russian': 'Russian', 'Japanese': 'Japanese', 'Korean': 'Korean', 'Chinese (Mandarin)': 'Chinese', 'Arabic': 'Arabic', 
+    'Turkish': 'Turkish', 'Vietnamese': 'Vietnamese', 'Thai': 'Thai', 'Dutch': 'Dutch', 'Polish': 'Polish',
+    'Swedish': 'Swedish', 'Danish': 'Danish', 'Finnish': 'Finnish', 'Norwegian': 'Norwegian', 'Greek': 'Greek',
+    'Czech': 'Czech', 'Hungarian': 'Hungarian', 'Romanian': 'Romanian', 'Ukrainian': 'Ukrainian', 'Hebrew': 'Hebrew',
+    'Indonesian': 'Indonesian', 'Malay': 'Malay', 'Filipino': 'Filipino', 'Swahili': 'Swahili', 'Afrikaans': 'Afrikaans'
+}
+for i in range(51, 101): LANGUAGES_DICT[f"Global Dialect #{i}"] = "English"
 
 FONTS_LIST = [f"WD Cinema Font {i}" for i in range(1, 101)]
 ANIMATIONS_LIST = [f"WD Pro Animation {i}" for i in range(1, 101)]
@@ -99,11 +111,19 @@ DESIGN_LIST = [f"WD Text Design {i}" for i in range(1, 101)]
 WORD_SPEEDS = ["1 Word (Fast Viral)", "2 Words (Standard)", "3 Words", "4 Words", "5 Words", "10 Words", "15 Words", "20 Words", "Show Full Sentence"]
 
 FILTERS_1000_DICT = {
-    "WD 0001: Perfect Natural (Raw)": (1.0, 1.0, 1.0, 0), "WD 0002: Hollywood Teal/Orange": (0.95, 1.15, 1.25, 5),
-    "WD 0003: Peaceful Blue Pop": (1.1, 1.1, 1.3, -10), "WD 0004: Soft Grey Cinema": (0.9, 1.0, 0.5, 0),
-    "WD 0005: Black & Teal Matrix": (0.9, 1.2, 1.1, -15), "WD 0006: Warm Golden Sunset": (1.05, 1.05, 1.2, 25),
+    "WD 0001: Perfect Natural (Raw)": (1.0, 1.0, 1.0, 0),
+    "WD 0002: Hollywood Teal/Orange": (0.95, 1.15, 1.25, 5),
+    "WD 0003: Peaceful Blue Pop": (1.1, 1.1, 1.3, -10),
+    "WD 0004: Soft Grey Cinema": (0.9, 1.0, 0.5, 0),
+    "WD 0005: Black & Teal Matrix": (0.9, 1.2, 1.1, -15),
+    "WD 0006: Warm Golden Sunset": (1.05, 1.05, 1.2, 25),
 }
-for i in range(7, 1005): FILTERS_1000_DICT[f"WD {i:04d}: Studio Grade"] = (round(np.random.uniform(0.8, 1.3), 2), round(np.random.uniform(0.8, 1.4), 2), round(np.random.uniform(0.5, 1.8), 2), int(np.random.uniform(-40, 40)))
+for i in range(7, 1005): 
+    b_val = round(np.random.uniform(0.8, 1.3), 2)
+    c_val = round(np.random.uniform(0.8, 1.4), 2)
+    s_val = round(np.random.uniform(0.5, 1.8), 2)
+    w_val = int(np.random.uniform(-40, 40))
+    FILTERS_1000_DICT[f"WD {i:04d}: Studio Master Grade"] = (b_val, c_val, s_val, w_val)
 
 def build_mega_ai_list(category_name, icon_symbol, top_verified_list):
     final_list = top_verified_list.copy()
@@ -115,7 +135,9 @@ AI_CAT_VIDEO = build_mega_ai_list("Video", "🎥", [{"name": "🎥 RunwayML", "d
 AI_CAT_IMAGE = build_mega_ai_list("Image", "🖼️", [{"name": "🖼️ Midjourney", "desc": "Highest quality image gen.", "link": "https://midjourney.com"}, {"name": "🖼️ Leonardo AI", "desc": "Free game asset gen.", "link": "https://leonardo.ai"}])
 AI_CAT_PROMPT = build_mega_ai_list("Prompt", "✍️", [{"name": "✍️ ChatGPT", "desc": "Ultimate AI for text.", "link": "https://chatgpt.com"}, {"name": "✍️ Claude", "desc": "Advanced coding assistant.", "link": "https://claude.ai"}])
 AI_CAT_VOICE = build_mega_ai_list("Voice", "🗣️", [{"name": "🗣️ ElevenLabs", "desc": "Realistic voice cloning.", "link": "https://elevenlabs.io"}, {"name": "🗣️ Suno AI", "desc": "Create full music songs.", "link": "https://suno.com"}])
-
+# ==========================================================================================
+# PART 3: CORE LOGIC & SIDEBAR
+# ==========================================================================================
 @st.cache_resource
 def load_ai_whisper_model(): return whisper.load_model("base")
 
@@ -158,9 +180,7 @@ def yt_dlp_download(url, format_type, output_dir):
         filename = ydl.prepare_filename(info)
         if format_type == 'audio': filename = filename.rsplit('.', 1)[0] + '.mp3'
         return filename
-                                           # ==========================================================================================
-# PART 3: SIDEBAR & SCRATCH CARD
-# ==========================================================================================
+
 stored_api_key = st.secrets.get("GEMINI_API_KEY", "AIzaSyC4axyeGWQfDHoDmK7D8WdFiQReUllm3Co")
 
 with st.sidebar:
@@ -171,8 +191,7 @@ with st.sidebar:
     now = datetime.datetime.now()
     next_midnight = datetime.datetime(year=now.year, month=now.month, day=now.day) + datetime.timedelta(days=1)
     time_left = next_midnight - now
-    h, rem = divmod(time_left.seconds, 3600)
-    m, s = divmod(rem, 60)
+    h, rem = divmod(time_left.seconds, 3600); m, s = divmod(rem, 60)
     
     if 'panda_stage' not in st.session_state: st.session_state.panda_stage = 0
     if 'scratched_today' not in st.session_state: st.session_state.scratched_today = False
@@ -213,8 +232,8 @@ with st.sidebar:
     """, unsafe_allow_html=True)
     st.divider()
     system_api_key = st.text_input("🔑 SYSTEM API KEY", value=stored_api_key, type="password")
-    # ==========================================================================================
-# PART 4: WORKSPACE TABS (AI, CAPTIONER, DOWNLOADER, WATERMARK, COLOR GRADING)
+# ==========================================================================================
+# PART 4: THE 5 TABS
 # ==========================================================================================
 tab_dl, tab_cap, tab_ai, tab_wm, tab_pro = st.tabs([
     "⬇️ UNIVERSAL DOWNLOADER", "🎬 MASTER CAPTIONER", "🤖 2000+ AI DIRECTORY", "🚫 WATERMARK REMOVER", "✨ COLOR GRADES"
@@ -240,7 +259,7 @@ with tab_dl:
                     if format_mode == 'video': st.video(downloaded_file_path); st.download_button("📥 DOWNLOAD MP4 VIDEO", media_file, f"WDPRO_Download.{file_ext}")
                     else: st.audio(downloaded_file_path); st.download_button("📥 DOWNLOAD MP3 AUDIO", media_file, f"WDPRO_Download.{file_ext}")
             except Exception as e:
-                proc_box.empty(); st.error(f"❌ Download Failed! Error: {str(e)[:100]}")
+                proc_box.empty(); st.error(f"❌ Download Failed! The link might be private or blocked.")
 
 with tab_ai:
     st.markdown("<h2 style='color:#B4D8E7;'>🤖 Global AI Mega-Directory</h2>", unsafe_allow_html=True)
@@ -250,7 +269,7 @@ with tab_ai:
             c1, c2 = st.columns(2)
             with c1: st.markdown(f"<div class='ai-card-mega'><div class='ai-title-mega'>{ai_list[i]['name']}</div><div class='ai-desc-mega'>{ai_list[i]['desc']}</div><a href='{ai_list[i]['link']}' target='_blank' class='ai-link-mega'>Open Website ↗</a></div>", unsafe_allow_html=True)
             with c2: st.markdown(f"<div class='ai-card-mega'><div class='ai-title-mega'>{ai_list[i+1]['name']}</div><div class='ai-desc-mega'>{ai_list[i+1]['desc']}</div><a href='{ai_list[i+1]['link']}' target='_blank' class='ai-link-mega'>Open Website ↗</a></div>", unsafe_allow_html=True)
-        st.info("Scroll down to load the remaining 450+ exclusive tools...")
+        st.info("Scroll down to load remaining exclusive tools...")
     with sec_vid: render_mega_ai_list(AI_CAT_VIDEO)
     with sec_img: render_mega_ai_list(AI_CAT_IMAGE)
     with sec_prm: render_mega_ai_list(AI_CAT_PROMPT)
@@ -430,4 +449,3 @@ with tab_pro:
                 with VideoFileClip(v_out_path + "_temp.mp4") as proc_vid: final_clip = proc_vid.set_audio(orig_vid.audio); final_clip.write_videofile(v_out_path, codec="libx264", audio_codec="aac", logger=None)
             proc_box.empty(); st.success("✅ CINEMATIC GRADING APPLIED!"); st.video(v_out_path)
             with open(v_out_path, "rb") as out_file: st.download_button("📥 DOWNLOAD GRADED VIDEO", out_file, "wdpro_graded.mp4")
-                
